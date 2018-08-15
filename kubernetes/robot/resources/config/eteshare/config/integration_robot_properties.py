@@ -2,7 +2,6 @@
 GLOBAL_AAF_SERVER = "https://aaf-service.{{include "common.namespace" .}}:8100"
 GLOBAL_AAF_USERNAME = "demo@people.osaaf.org"
 GLOBAL_AAF_PASSWORD = "demo123456!"
-
 # aai info - everything is from the private oam network (also called onap private network)
 GLOBAL_AAI_SERVER_PROTOCOL = "https"
 GLOBAL_AAI_SERVER_PORT = "8443"
@@ -14,6 +13,10 @@ GLOBAL_APPC_SERVER_PORT = "8282"
 GLOBAL_APPC_SERVER = "http://appc.{{include "common.namespace" .}}:"
 GLOBAL_APPC_USERNAME = "admin"
 GLOBAL_APPC_PASSWORD = "admin"
+GLOBAL_APPC_CDT_SERVER_PROTOCOL = "http"
+GLOBAL_APPC_CDT_SERVER_PORT = "80"
+GLOBAL_APPC_CDT_SERVER = "http://appc-cdt.{{include "common.namespace" .}}:"
+GLOBAL_APPC_CDT_USERNAME = "demo"
 # sdc info - everything is from the private oam network (also called onap private network)
 GLOBAL_ASDC_SERVER_PROTOCOL = "http"
 GLOBAL_ASDC_FE_PORT = "8181"
@@ -35,6 +38,15 @@ GLOBAL_DCAE_SERVER_PROTOCOL = "http"
 GLOBAL_DCAE_HEALTH_SERVER_PORT = "80"
 GLOBAL_DCAE_USERNAME = "console"
 GLOBAL_DCAE_PASSWORD = "ZjJkYjllMjljMTI2M2Iz"
+# DROOL server port and credentials
+GLOBAL_DROOLS_SERVER_PORT = "9696"
+GLOBAL_DROOLS_USERNAME = "@1b3rt"
+GLOBAL_DROOLS_PASSWORD = "31nst31n"
+# Log info
+GLOBAL_LOG_SERVER_PROTOCOL = "http"
+GLOBAL_LOG_ELASTICSEARCH_PORT = "9200"
+GLOBAL_LOG_LOGSTASH_PORT = "9600"
+GLOBAL_LOG_KIBANA_PORT = "5601"
 # microservice bus info - everything is from the private oam network (also called onap private network)
 GLOBAL_MSB_SERVER_PROTOCOL = "http"
 GLOBAL_MSB_SERVER_PORT = "80"
@@ -49,9 +61,11 @@ GLOBAL_MSO_PASSWORD = "password1$"
 # music info - everything is from the private oam network (also called onap private network)
 GLOBAL_MUSIC_SERVER_PROTOCOL = "http"
 GLOBAL_MUSIC_SERVER_PORT = "8080"
-# oof
+# oof global info - everything is from the private oam network (also called onap private network)
 GLOBAL_OOF_SERVER_PROTOCOL = "http"
+# oof-homing info - everything is from the private oam network (also called onap private network)
 GLOBAL_OOF_HOMING_SERVER_PORT = "8091"
+# oof-sniro info - everything is from the private oam network (also called onap private network)
 GLOBAL_OOF_SNIRO_SERVER_PORT = "8698"
 # openstack info - info to select right info in environment
 # packet generate vnf info - everything is from the private oam network (also called onap private network)
@@ -98,9 +112,4 @@ GLOBAL_PROXY_WARNING_CONTINUE_XPATH=""
 # dns info
 GLOBAL_DNS_TRAFFIC_DURATION = "600"
 # location where heat templates are loaded from
-GLOBAL_HEAT_TEMPLATES_FOLDER = "/share/heat"
-# Log info
-GLOBAL_LOG_SERVER_PROTOCOL = "http"
-GLOBAL_LOG_ELASTICSEARCH_PORT = "9200"
-GLOBAL_LOG_LOGSTASH_PORT = "9600"
-GLOBAL_LOG_KIBANA_PORT = "5601"
+GLOBAL_HEAT_TEMPLATES_FOLDER = "/var/opt/OpenECOMP_ETE/demo/heat"
