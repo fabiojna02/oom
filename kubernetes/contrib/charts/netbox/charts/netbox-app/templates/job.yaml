@@ -1,4 +1,4 @@
-# Copyright © 2017 Amdocs, AT&T, Bell Canada
+# Copyright © 2018 Bell Canada
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "common.fullname" . }}-init-activity-spec
+  name: {{ include "common.fullname" . }}-provisioning
   namespace: {{ include "common.namespace" . }}
   labels:
     app: {{ include "common.name" . }}-job
@@ -23,11 +23,11 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  backoffLimit: 20
+  backoffLimit: 5
   template:
     metadata:
       labels:
-        app: {{ include "common.name" . }}-job
+        app: {{ include "common.name" . }}-provisioning-job
         release: {{ .Release.Name }}
     spec:
       restartPolicy: Never
@@ -39,7 +39,7 @@ spec:
         - /root/ready.py
         args:
         - --container-name
-        - sdc-cs
+        - netbox-app
         env:
         - name: NAMESPACE
           valueFrom:
@@ -47,18 +47,19 @@ spec:
               apiVersion: v1
               fieldPath: metadata.namespace
       containers:
-      - name: {{ include "common.name" . }}-job
-        image: "{{ include "common.repository" . }}/{{ .Values.configInitImage }}"
-        imagePullPolicy: {{ .Values.global.pullPolicy | default .Values.pullPolicy }}
-        env:
-        - name: CS_HOST
-          value: sdc-cs
-        - name: CS_USER
-          valueFrom:
-            secretKeyRef: {name: {{ .Release.Name }}-sdc-cs-secrets, key: sdc_user}
-        - name: CS_PASSWORD
-          valueFrom:
-            secretKeyRef: {name: {{ .Release.Name }}-sdc-cs-secrets, key: sdc_password}
+      - name: {{ include "common.name" . }}-provisioning-job
+        image: "{{ .Values.global.readinessRepository }}/{{ .Values.global.readinessImage }}"
+        volumeMounts:
+        - name: {{ include "common.fullname" . }}-provisioning
+          mountPath: /tmp
+        command:
+        - /bin/bash
+        - ./tmp/provision.sh
+      volumes:
+        - name: {{ include "common.fullname" . }}-provisioning
+          configMap:
+            name: {{ include "common.fullname" . }}-provisioning-configmap
+            defaultMode: 0755
       imagePullSecrets:
       - name: "{{ include "common.namespace" . }}-docker-registry-key"
       restartPolicy: Never

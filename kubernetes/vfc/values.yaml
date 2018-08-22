@@ -16,6 +16,8 @@ global:
   config:
     msbServiceName: msb-iag
     msbPort: 80
+    dbServiceName: vfc-db
+    dbPort: 3306
 
 # application configuration
 config:
