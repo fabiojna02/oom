@@ -1,4 +1,5 @@
 # Copyright © 2017 Amdocs, Bell Canada
+# Modifications Copyright © 2018 AT&T
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,7 +44,7 @@ config:
   papPort: "30219"
   # application's front end hostname.  Must be resolvable on the client side environment
   papHostName: "policy.api.simpledemo.onap.org"
-  # vid ui  assignment for port 8080
+  # vid ui  assignment for port 8443
   vidPort: "30200"
   # application's front end hostname.  Must be resolvable on the client side environment
   vidHostName: "vid.api.simpledemo.onap.org"

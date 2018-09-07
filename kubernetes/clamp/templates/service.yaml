@@ -1,4 +1,5 @@
 # Copyright © 2017 Amdocs, Bell Canada
+# Modifications Copyright © 2018 AT&T
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,10 +30,16 @@ spec:
     - port: {{ .Values.service.internalPort }}
       nodePort: {{ .Values.global.nodePortPrefix | default .Values.nodePortPrefix }}{{ .Values.service.nodePort }}
       name: {{ .Values.service.portName }}
+    - port: {{ .Values.service.internalPort2 }}
+      nodePort: {{ .Values.global.nodePortPrefix | default .Values.nodePortPrefix }}{{ .Values.service.nodePort2 }}
+      name: {{ .Values.service.portName }}2
     {{- else -}}
     - port: {{ .Values.service.externalPort }}
       targetPort: {{ .Values.service.internalPort }}
       name: {{ .Values.service.portName }}
+    - port: {{ .Values.service.externalPort2 }}
+      targetPort: {{ .Values.service.internalPort2 }}
+      name: {{ .Values.service.portName }}2
     {{- end}}
   selector:
     app: {{ include "common.name" . }}

@@ -3,6 +3,7 @@
     org.onap.aai
     ================================================================================
     Copyright © 2017 AT&T Intellectual Property. All rights reserved.
+    Modifications Copyright © 2018 Amdocs, Bell Canada
     ================================================================================
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -348,5 +349,8 @@
     </logger>
     <root level="DEBUG">
         <appender-ref ref="external" />
+        {{ if .Values.global.config.logback.console.enabled }}
+        <appender-ref ref="STDOUT" />
+        {{ end }}
     </root>
 </configuration>

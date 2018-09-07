@@ -1,3 +1,17 @@
+# Copyright (c) 2018 Amdocs, Bell Canada
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # aaf info - everything is from the private oam network (also called onap private network)
 GLOBAL_AAF_SERVER = "https://aaf-service.{{include "common.namespace" .}}:8100"
 GLOBAL_AAF_USERNAME = "demo@people.osaaf.org"
@@ -38,6 +52,11 @@ GLOBAL_DCAE_SERVER_PROTOCOL = "http"
 GLOBAL_DCAE_HEALTH_SERVER_PORT = "80"
 GLOBAL_DCAE_USERNAME = "console"
 GLOBAL_DCAE_PASSWORD = "ZjJkYjllMjljMTI2M2Iz"
+# data router info - everything is from the private oam network (also called onap private network)
+GLOBAL_DMAAP_DR_PROV_SERVER_PROTOCOL = "http"
+GLOBAL_DMAAP_DR_PROV_SERVER_PORT = "8080"
+GLOBAL_DMAAP_DR_NODE_SERVER_PROTOCOL = "http"
+GLOBAL_DMAAP_DR_NODE_SERVER_PORT = "8080"
 # DROOL server port and credentials
 GLOBAL_DROOLS_SERVER_PORT = "9696"
 GLOBAL_DROOLS_USERNAME = "@1b3rt"
@@ -56,8 +75,20 @@ GLOBAL_MR_SERVER_PORT = "3904"
 # mso info - everything is from the private oam network (also called onap private network)
 GLOBAL_MSO_SERVER_PROTOCOL = "http"
 GLOBAL_MSO_SERVER_PORT = "8080"
+
+GLOBAL_MSO_APIHAND_SERVER_PORT = "8080"
+GLOBAL_MSO_ASDCHAND_SERVER_PORT = "8085"
+GLOBAL_MSO_BPMN_SERVER_PORT = "8081"
+GLOBAL_MSO_CATDB_SERVER_PORT = "8082"
+GLOBAL_MSO_OPENSTACK_SERVER_PORT = "8087"
+GLOBAL_MSO_REQDB_SERVER_PORT = "8083"
+GLOBAL_MSO_SDNC_SERVER_PORT =  "8086"
+GLOBAL_MSO_VFC_SERVER_PORT = "8084"
+
 GLOBAL_MSO_USERNAME = "InfraPortalClient"
+GLOBAL_MSO_CATDB_USERNAME = "bpel"
 GLOBAL_MSO_PASSWORD = "password1$"
+
 # music info - everything is from the private oam network (also called onap private network)
 GLOBAL_MUSIC_SERVER_PROTOCOL = "http"
 GLOBAL_MUSIC_SERVER_PORT = "8080"
@@ -113,3 +144,4 @@ GLOBAL_PROXY_WARNING_CONTINUE_XPATH=""
 GLOBAL_DNS_TRAFFIC_DURATION = "600"
 # location where heat templates are loaded from
 GLOBAL_HEAT_TEMPLATES_FOLDER = "/var/opt/OpenECOMP_ETE/demo/heat"
+

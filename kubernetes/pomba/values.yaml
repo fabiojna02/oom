@@ -20,6 +20,8 @@ global:
   readinessRepository: oomk8s
   loggingRepository: docker.elastic.co
   loggingImage: beats/filebeat:5.5.0
+  repository: nexus3.onap.org:10001
+  dockerhubRepository: docker.io
 
 # application configuration
 config:
