@@ -78,6 +78,8 @@ cli:
   enabled: true
 consul:
   enabled: true
+contrib:
+  enabled: true
 dcaegen2:
   enabled: true
 dmaap:
@@ -108,6 +110,9 @@ portal:
   enabled: true
 robot:
   enabled: true
+  config:
+# openStackEncryptedPasswordHere should match the encrypted string used in SO and APPC and overridden per environment
+    openStackEncryptedPasswordHere: "c124921a3a0efbe579782cde8227681e"
 sdc:
   enabled: true
 sdnc:

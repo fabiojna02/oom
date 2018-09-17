@@ -60,7 +60,7 @@ readiness:
 
 ## Persist data to a persitent volume
 persistence:
-  enabled: false
+  enabled:  true
 
   ## A manually managed Persistent Volume and Claim
   ## Requires persistence.enabled: true
@@ -76,20 +76,22 @@ persistence:
   ##   GKE, AWS & OpenStack)
   ##
   # storageClass: "-"
-  accessMode: ReadWriteOnce
+  accessMode: ReadWriteMany
   size: 2Gi
-
+  mountPath: /dockerdata-nfs
+  mountSubPath: "mariadb-galera/data"
+  mysqlPath: /var/lib/mysql
 
 service:
   internalPort: 3306
   name: mariadb-galera
   portName: mariadb-galera
   sstPort: 4444
-  sstName: sst
+  sstPortName: sst
   replicationPort: 4567
   replicationName: replication
   istPort: 4568
-  istName: ist
+  istPortName: ist
 
 ingress:
   enabled: false

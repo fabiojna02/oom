@@ -1,5 +1,5 @@
-# Copyright © 2018 ZTE
-# Modifications Copyright © 2018 AT&T, Amdocs, Bell Canada
+# Copyright © 2018 Amdocs, AT&T
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -16,24 +16,22 @@
 # Global configuration defaults.
 #################################################################
 global:
-  nodePortPrefix: 302
-  repository: nexus3.onap.org:10001
-  readinessRepository: oomk8s
   readinessImage: readiness-check:2.0.0
-  loggingRepository: docker.elastic.co
   loggingImage: beats/filebeat:5.5.0
 
 #################################################################
 # Application configuration defaults.
 #################################################################
+
 # application image
-repository: nexus3.onap.org:10001
-image: onap/vnfsdk/refrepo/postgres:1.1.1
-pullPolicy: Always
+image: onap/spike:1.0-STAGING-latest
 
-# flag to enable debugging - application support required
-debugEnabled: false
+# application configuration
+config:
+  keyStorePassword: OBF:1y0q1uvc1uum1uvg1pil1pjl1uuq1uvk1uuu1y10
+  keyManagerPassword: OBF:1y0q1uvc1uum1uvg1pil1pjl1uuq1uvk1uuu1y10
 
+# default number of instances
 replicaCount: 1
 
 nodeSelector: {}
@@ -46,18 +44,29 @@ liveness:
   periodSeconds: 10
   # necessary to disable liveness probe when setting breakpoints
   # in debugger so K8s doesn't restart unresponsive container
-  enabled: true
+  enabled: false
 
 readiness:
   initialDelaySeconds: 10
   periodSeconds: 10
 
 service:
-  type: ClusterIP
-  name: vnfsdk-postgres
-  portName: vnfsdk-postgres
-  internalPort: 5432
-  externalPort: 5432
+  type: NodePort
+  portName: spike
+  externalPort: 9518
+  internalPort: 9518
+  nodePort: 39
 
 ingress:
   enabled: false
+
+resources: {}
+
+# XML bean configuration
+event:
+  port:
+    dmaap: 3904
+  consumer:
+    topic: champRawEvents
+  publisher:
+    topic: spikeEvents

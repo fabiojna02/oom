@@ -70,10 +70,10 @@ curl --silent -X POST \
   -H 'Authorization: Token onceuponatimeiplayedwithnetbox20180814' \
   -H 'Content-Type: application/json' \
   -d '{
-  "prefix": "192.168.20.0/24",
+  "prefix": "{{ .Values.service.vfw_protected_pool }}",
   "site": 1,
   "tenant": 1,
-  "is_pool": true,
+  "is_pool": false,
   "description": "IP Pool for protected network - vFW use case"
 }'
 
@@ -83,10 +83,10 @@ curl --silent -X POST \
   -H 'Authorization: Token onceuponatimeiplayedwithnetbox20180814' \
   -H 'Content-Type: application/json' \
   -d '{
-  "prefix": "192.168.10.0/24",
+  "prefix": "{{ .Values.service.vfw_unprotected_pool }}",
   "site": 1,
   "tenant": 1,
-  "is_pool": true,
+  "is_pool": false,
   "description": "IP Pool for unprotected network - vFW use case"
 }'
 
@@ -96,9 +96,10 @@ curl --silent -X POST \
   -H 'Authorization: Token onceuponatimeiplayedwithnetbox20180814' \
   -H 'Content-Type: application/json' \
   -d '{
-  "prefix": "10.0.0.0/8",
+  "prefix": "{{ .Values.service.vfw_mgmt_pool }}",
   "site": 1,
   "tenant": 1,
-  "is_pool": true,
+  "is_pool": false,
   "description": "IP Pool for ONAP - general purpose"
 }'
+

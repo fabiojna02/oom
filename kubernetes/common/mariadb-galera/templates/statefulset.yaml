@@ -23,7 +23,7 @@ metadata:
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
 spec:
-  serviceName: {{ include "common.fullname" . }}
+  serviceName: {{ .Values.service.name }}
   replicas: {{ .Values.replicaCount }}
   template:
     metadata:
@@ -48,7 +48,7 @@ spec:
       imagePullSecrets:
       - name: {{ include "common.namespace" . }}-docker-registry-key
       containers:
-        - name: {{ include "common.fullname" . }}
+        - name: {{ include "common.name" . }}
           image: "{{ include "common.repository" . }}/{{ .Values.image }}"
           imagePullPolicy: {{ .Values.global.pullPolicy | default .Values.pullPolicy | quote}}
           env:
@@ -73,13 +73,13 @@ spec:
                   key: db-root-password
           ports:
           - containerPort: {{ .Values.service.internalPort }}
-            name: {{ .Values.service.name }}
+            name: {{ .Values.service.portName }}
           - containerPort: {{ .Values.service.sstPort }}
-            name: {{ .Values.service.sstName }}
+            name: {{ .Values.service.sstPortName }}
           - containerPort: {{ .Values.service.replicationPort }}
             name: {{ .Values.service.replicationName }}
           - containerPort: {{ .Values.service.istPort }}
-            name: {{ .Values.service.istName }}
+            name: {{ .Values.service.istPortName }}
           readinessProbe:
             exec:
               command:
@@ -107,7 +107,6 @@ spec:
 {{- if .Values.persistence.enabled }}
           - mountPath: /var/lib/mysql
             name: {{ include "common.fullname" . }}-data
-            subPath: data
       initContainers:
         - name: mariadb-galera-prepare
           image: "{{ include "common.repository" . }}/{{ .Values.imageInit }}"
@@ -118,15 +117,12 @@ spec:
   volumeClaimTemplates:
   - metadata:
       name: {{ include "common.fullname" . }}-data
-      annotations:
-  {{- if .Values.persistence.storageClass }}
-        volume.beta.kubernetes.io/storage-class: {{ .Values.persistence.storageClass | quote }}
-  {{- else }}
-        volume.alpha.kubernetes.io/storage-class: default
-  {{- end }}
+      labels:
+        name: {{ include "common.fullname" . }}
     spec:
       accessModes:
       - {{ .Values.persistence.accessMode | quote }}
+      storageClassName: {{ include "common.fullname" . }}-data
       resources:
         requests:
           storage: {{ .Values.persistence.size | quote }}

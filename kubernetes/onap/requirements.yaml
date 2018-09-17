@@ -44,6 +44,10 @@ dependencies:
     version: ~2.0.0
     repository: '@local'
     condition: consul.enabled
+  - name: contrib
+    version: ~2.0.0
+    repository: '@local'
+    condition: contrib.enabled
   - name: dcaegen2
     version: ~2.0.0
     repository: '@local'
@@ -57,7 +61,7 @@ dependencies:
     repository: '@local'
     condition: esr.enabled
   - name: log
-    version: ~2.0.0
+    version: ~3.0.0
     repository: '@local'
     condition: log.enabled
   - name: sniro-emulator
