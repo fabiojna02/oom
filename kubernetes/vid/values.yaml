@@ -17,9 +17,8 @@
 # Declare variables to be passed into your templates.
 global:
   nodePortPrefix: 302
-  repositorySecret: eyJuZXh1czMub25hcC5vcmc6MTAwMDEiOnsidXNlcm5hbWUiOiJkb2NrZXIiLCJwYXNzd29yZCI6ImRvY2tlciIsImVtYWlsIjoiQCIsImF1dGgiOiJaRzlqYTJWeU9tUnZZMnRsY2c9PSJ9fQ==
   readinessRepository: oomk8s
-  readinessImage: readiness-check:1.0.0
+  readinessImage: readiness-check:2.0.1
   loggingRepository: docker.elastic.co
   loggingImage: beats/filebeat:5.5.0
 
@@ -28,7 +27,7 @@ subChartsOnly:
 
 # application image
 repository: nexus3.onap.org:10001
-image: onap/vid:2.0.0
+image: onap/vid:3.0.0
 pullPolicy: Always
 
 # mariadb image for initializing
@@ -54,8 +53,9 @@ config:
   logstashPort: 5044
 
 # subchart configuration
-mariadb-galera:
-  nameOverride: vid-mariadb-galera
+vid_mariadb_galera:
+#  nameOverride: vid-mariadb-galera
+  replicaCount: 1
 
 # default number of instances
 replicaCount: 1
@@ -80,28 +80,32 @@ service:
   type: NodePort
   name: vid
   portName: vid
-  externalPort: "00"
-  nodePort: "00"
+  externalPort: 8443
   internalPort: 8443
+  nodePort: "00"
+  portName2: vid-http
+  externalPort2: 8080
+  internalPort2: 8080
+  nodePort2: "38"
 
 ingress:
   enabled: false
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  #
-  # Example:
-  # Configure resource requests and limits
-  # ref: http://kubernetes.io/docs/user-guide/compute-resources/
-  # Minimum memory for development is 2 CPU cores and 4GB memory
-  # Minimum memory for production is 4 CPU cores and 8GB memory
-#resources:
-#  limits:
-#    cpu: 2
-#    memory: 4Gi
-#  requests:
-#    cpu: 2
-#    memory: 4Gi
+# Resource Limit flavor -By Default using small 
+flavor: small
+# Segregation for Different environment (Small and Large)
+resources:
+  small:
+    limits:
+      cpu: 20m
+      memory: 2Gi
+    requests:
+      cpu: 20m
+      memory: 2Gi
+  large:
+    limits:
+      cpu: 40m
+      memory: 4Gi
+    requests:
+      cpu: 40
+      memory: 4Gi
