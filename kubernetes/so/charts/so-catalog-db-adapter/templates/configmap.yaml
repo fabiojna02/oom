@@ -19,15 +19,21 @@ kind: ConfigMap
 metadata:
   name: {{ include "common.fullname" . }}-configmap
   namespace: {{ include "common.namespace" . }}
+  labels:
+    app: {{ include "common.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ include "common.fullname" . }}-app-configmap
   namespace: {{ include "common.namespace" . }}
+  labels:
+    app: {{ include "common.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
 data:
-  {{- $yamlpath := printf "resources/config/overrides/override.yaml" -}}
-  {{- $root := . }}
-  {{- range $path, $bytes := .Files.Glob $yamlpath }}
-  override.yaml: {{ $root.Files.Get $path | quote }}
-  {{- end }}
+{{ tpl (.Files.Glob "resources/config/overrides/*").AsConfig . | indent 2 }}

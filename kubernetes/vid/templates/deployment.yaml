@@ -31,16 +31,9 @@ spec:
         release: {{ .Release.Name }}
     spec:
       initContainers:
-#dd775k: This container checks if the job that wait for all db instances to be up and initializes the db had finished.
-#      - command:
-#        - /bin/sh
-#        args:
-#        - "-c"
-#        - "sleep 1000000000m"
       - command:
-        - python
+        - /root/job_complete.py
         args:
-        - /tmp/vid-check-job-completion/vid_check_job_completion.py
         - --job-name
         - vid-config-galera
         env:
@@ -52,17 +45,10 @@ spec:
         image: "{{ .Values.global.readinessRepository }}/{{ .Values.global.readinessImage }}"
         imagePullPolicy: {{ .Values.global.pullPolicy | default .Values.pullPolicy }}
         name: {{ include "common.name" . }}-readiness
-        volumeMounts:
-        - mountPath: /tmp/vid-check-job-completion
-          name: vid-check-job-completion
       containers:
         - name: {{ include "common.name" . }}
           image: "{{ include "common.repository" . }}/{{ .Values.image }}"
           imagePullPolicy: {{ .Values.global.pullPolicy | default .Values.pullPolicy }}
-          lifecycle:
-            postStart:
-              exec:
-                command: ["/bin/sh", "-c", "export LOG=wait_logback.log; touch $LOG; export SRC=/tmp/logback.xml; export DST=/usr/local/tomcat/webapps/vid/WEB-INF/classes/; while [ ! -e $DST ]; do echo 'Waiting for $DST...' >> $LOG; sleep 5; done; sleep 2; /bin/cp -f $SRC $DST; echo 'Done' >> $LOG"]
           ports:
           - containerPort: {{ .Values.service.internalPort }}
           # disable liveness probe when breakpoints set in debugger
@@ -132,7 +118,7 @@ spec:
             name: vid-logback
             subPath: logback.xml
           resources:
-{{ toYaml .Values.resources | indent 12 }}
+{{ toYaml (pluck .Values.flavor .Values.resources| first) | indent 12 }}
         {{- if .Values.nodeSelector }}
         nodeSelector:
 {{ toYaml .Values.nodeSelector | indent 10 }}
@@ -167,10 +153,6 @@ spec:
         - name: vid-logback
           configMap:
             name: {{ include "common.fullname" . }}-log-configmap
-        - name: vid-check-job-completion
-          configMap:
-            name: {{ include "common.fullname" . }}-check-job-completion
       imagePullSecrets:
       - name: "{{ include "common.namespace" . }}-docker-registry-key"
-
 
