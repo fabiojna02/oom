@@ -27,7 +27,7 @@ subChartsOnly:
 
 # application image
 repository: nexus3.onap.org:10001
-image: onap/vid:3.0.0
+image: onap/vid:3.0-STAGING-latest
 pullPolicy: Always
 
 # mariadb image for initializing
@@ -40,7 +40,7 @@ config:
   asdcclientrestport: "8080"
   vidaaiport: "8443"
   onapport: "8989"
-  msoport: "8443"
+  msoport: "8080"
   vidmsopass: OBF:1ih71i271vny1yf41ymf1ylz1yf21vn41hzj1icz
   msodme2serverurl: http://localhost:8081
   vidcontactuslink: https://todo_contact_us_link.com
@@ -66,7 +66,7 @@ affinity: {}
 
 # probe configuration parameters
 liveness:
-  initialDelaySeconds: 10
+  initialDelaySeconds: 120
   periodSeconds: 10
   # necessary to disable liveness probe when setting breakpoints
   # in debugger so K8s doesn't restart unresponsive container
@@ -91,21 +91,22 @@ service:
 ingress:
   enabled: false
 
-# Resource Limit flavor -By Default using small 
+# Resource Limit flavor -By Default using small
 flavor: small
 # Segregation for Different environment (Small and Large)
 resources:
   small:
     limits:
-      cpu: 20m
+      cpu: 200m
       memory: 2Gi
     requests:
-      cpu: 20m
-      memory: 2Gi
+      cpu: 100m
+      memory: 1Gi
   large:
     limits:
-      cpu: 40m
+      cpu: 400m
       memory: 4Gi
     requests:
-      cpu: 40
-      memory: 4Gi
+      cpu: 200m
+      memory: 2Gi
+  unlimited: {}

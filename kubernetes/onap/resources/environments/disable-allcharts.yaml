@@ -33,11 +33,11 @@ appc:
   enabled: false
 clamp:
   enabled: false
-contrib:
-  enabled: false
 cli:
   enabled: false
 consul:
+  enabled: false
+contrib:
   enabled: false
 dcaegen2:
   enabled: false

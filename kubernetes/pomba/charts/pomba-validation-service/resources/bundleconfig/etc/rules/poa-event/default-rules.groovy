@@ -154,8 +154,8 @@ rule {
 rule {
   name        'NDCB-AAI-attribute-comparison'
   category    'INVALID_VALUE'
-  description 'Verify that every attribute in Network-Discovery is the same as in AAI'
-  errorText   'Some attributes in Network-Discovery are not equal to attributes in AAI'
+  description 'Verify that all attributes in Network-Discovery are the same as in AAI'
+  errorText   'Error found with attribute "{0}"; value "{1}" does not exist in Network-Discovery'
   severity    'ERROR'
   attributes  'ndcbItems', 'aaiItems'
   validate    '''
@@ -213,14 +213,22 @@ rule {
         java.util.Map ndcb = getAttributes(slurper.parseText(ndcbItems.toString()))
         java.util.Map aai = getAttributes(slurper.parseText(aaiItems.toString()))
 
-        ndcb.each{ ndcbKey, ndcbValueList ->
+        boolean result = true
+        List<String> details = new ArrayList<>();
+        ndcb.any{ ndcbKey, ndcbValueList ->
           def aaiValueList = aai.get("$ndcbKey")
           aaiValueList.each{ aaiValue ->
             if(!ndcbValueList.any{ it == "$aaiValue" }) {
-              return false
+              result = false
+              details.add("$ndcbKey")
+              details.add("$aaiValue")
             }
           }
+          if(result == false) {
+            // break out of 'any' loop
+            return true
+          }
         }
-        return true
+        return new Tuple2(result, details)
         '''
 }
