@@ -84,8 +84,8 @@ echo "Restarting PDP-D .."
 echo
 echo
 
-POD=$(kubectl --namespace onap-policy get pods | sed 's/ .*//'| grep drools)
-kubectl --namespace onap-policy exec -it ${POD} -- bash -c "source /opt/app/policy/etc/profile.d/env.sh && policy stop && sleep 5 && policy start"
+POD=$(kubectl --namespace {{ include "common.namespace" . }} get pods | sed 's/ .*//'| grep drools)
+kubectl --namespace {{ include "common.namespace" . }} exec -it ${POD} -- bash -c "source /opt/app/policy/etc/profile.d/env.sh && policy stop && sleep 5 && policy start"
 
 sleep 20
 
@@ -95,7 +95,7 @@ echo "PDP-D amsterdam maven coordinates .."
 echo
 echo
 
-curl -vvv -k --silent --user @1b3rt:31nst31n -X GET https://${K8S_HOST}:${POLICY_DROOLS_PORT}/policy/pdp/engine/controllers/amsterdam/drools  | python -m json.tool
+curl -vvv -k --silent --user "demo@people.osaaf.org:demo123456!" -X GET https://${K8S_HOST}:${POLICY_DROOLS_PORT}/policy/pdp/engine/controllers/amsterdam/drools  | python -m json.tool
 
 
 echo
@@ -104,4 +104,4 @@ echo "PDP-D control loop updated .."
 echo
 echo
 
-curl -v -k --silent --user @1b3rt:31nst31n -X GET https://${K8S_HOST}:${POLICY_DROOLS_PORT}/policy/pdp/engine/controllers/amsterdam/drools/facts/closedloop-amsterdam/org.onap.policy.controlloop.Params  | python -m json.tool
+curl -v -k --silent --user "demo@people.osaaf.org:demo123456!" -X GET https://${K8S_HOST}:${POLICY_DROOLS_PORT}/policy/pdp/engine/controllers/amsterdam/drools/facts/closedloop-amsterdam/org.onap.policy.controlloop.Params  | python -m json.tool
