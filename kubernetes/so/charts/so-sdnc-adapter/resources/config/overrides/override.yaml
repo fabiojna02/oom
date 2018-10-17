@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 server:
-    port: 8086
+    port: {{ index .Values.containerPort }}
 mso:
     async:
         core-pool-size: 50
@@ -24,7 +24,7 @@ mso:
           spring:
             endpoint: http://so-catalog-db-adapter.{{ include "common.namespace" . }}:8082
     db:
-      auth: Basic cGFzc3dvcmQxJA==
+      auth: Basic YnBlbDpwYXNzd29yZDEk
     site-name: onapheat
 org:
     onap:
@@ -83,7 +83,7 @@ org:
                             changedelete: POST|270000|sdncurl6|sdnc-request-header|org:onap:sdnctl:vnf
                             delete: POST|270000|sdncurl6|sdnc-request-header|org:onap:sdnctl:vnf
                             rollback: POST|270000|sdncurl6|sdnc-request-header|org:onap:sdnctl:vnf
-                    bpelauth: cGFzc3dvcmQxJA==
+                    bpelauth: 023A0244AB819A0DE0131DBC3AC5FAB4D8544E1CB1A7FE3CE60F6E3292AC0D93
                     bpelurl: http://so-bpmn-infra.{{ include "common.namespace" . }}:8081/mso/SDNCAdapterCallbackService
                     generic-resource:
                         network-topology-operation:
@@ -118,15 +118,15 @@ org:
                     myurl: http://so-sdnc-adapter{{ include "common.namespace" . }}:8086/adapters/rest/SDNCNotify
                     rest:
                         bpelurl: http://so-bpmn-infra.{{ include "common.namespace" . }}:8081/mso/WorkflowMessage
-                    sdncauth: 406B2AE613211B6FB52466DE6E1769AC
+                    sdncauth: 263f7d5f944d4d0c76db74b4148bec67d0bc796a874bc0d2a2a12aae89a866aa69133f700f391f784719a37f6a68d29bf5a2fbae1dab0402db7788c800c5ba73
                     sdncconnecttime: 5000
-                    sdncurl10: http://sdnc.{{ include "common.namespace" . }}:8282/restconf/operations/GENERIC-RESOURCE-API:'
-                    sdncurl11: http://sdnc.{{ include "common.namespace" . }}:8282/restconf/operations/VNFTOPOLOGYAIC-API:'
-                    sdncurl12: http://sdnc.{{ include "common.namespace" . }}:8282/
-                    sdncurl5: http://sdnc.{{ include "common.namespace" . }}:8282/restconf/config
-                    sdncurl6: http://sdnc.{{ include "common.namespace" . }}:8282/restconf/operations/VNF-API:'
-                    sdncurl8: http://sdnc.{{ include "common.namespace" . }}:8282/restconf/operations/NBNC-API:'
-                    sdncurl9: http://sdnc.{{ include "common.namespace" . }}:8282/restconf/operations/NORTHBOUND-API:service-topology-operation
+                    sdncurl10: 'http://sdnc.{{ include "common.namespace" . }}:8282/restconf/operations/GENERIC-RESOURCE-API:'
+                    sdncurl11: 'http://sdnc.{{ include "common.namespace" . }}:8282/restconf/operations/VNFTOPOLOGYAIC-API:'
+                    sdncurl12: 'http://sdnc.{{ include "common.namespace" . }}:8282/'
+                    sdncurl5: 'http://sdnc.{{ include "common.namespace" . }}:8282/restconf/config'
+                    sdncurl6: 'http://sdnc.{{ include "common.namespace" . }}:8282/restconf/operations/VNF-API:'
+                    sdncurl8: 'http://sdnc.{{ include "common.namespace" . }}:8282/restconf/operations/NBNC-API:'
+                    sdncurl9: 'http://sdnc.{{ include "common.namespace" . }}:8282/restconf/operations/NORTHBOUND-API:service-topology-operation'
                     service:
                         infra:
                             service-topology-infra-activate-operation: POST|90000|sdncurl9|sdnc-request-header|com:att:sdnctl:northbound-api:v1

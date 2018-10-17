@@ -31,25 +31,31 @@ spec:
         release: {{ .Release.Name }}
     spec:
       initContainers:
-      - command:
-        - /root/job_complete.py
-        args:
-        - -j
-        - {{ .Release.Name }}-aaf-create-config
-        env:
-        - name: NAMESPACE
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: metadata.namespace
-        image: "{{ .Values.global.readinessRepository }}/{{ .Values.global.readinessImage }}"
+      - name: {{ include "common.name" . }}-config-container
+        image: "{{ include "common.repository" . }}/{{ .Values.global.configImage }}"
         imagePullPolicy: {{ .Values.global.pullPolicy | default .Values.pullPolicy }}
-        name: {{ include "common.name" . }}-job-complete
-      - command:
+        volumeMounts:
+          - mountPath: "/opt/app/osaaf"
+            name: {{ include "common.name" . }}-config-vol
+        env:
+          - name: HOSTNAME
+            value: "{{ .Values.global.cadi.hostname }}"
+          - name: AAF_ENV
+            value: "{{ .Values.global.cadi.aaf_env }}"
+          - name: AAF_REGISTER_AS
+            value: "{{ .Values.aaf_register_as }}"
+          - name: LATITUDE
+            value: "{{ .Values.global.cadi.cadi_latitude }}"
+          - name: LONGITUDE
+            value: "{{ .Values.global.cadi.cadi_longitude }}"
+          - name: CASS_HOST
+            value: "{{ .Values.global.cadi.cass_host }}"
+          - name: AAF_LOCATOR_AS
+            value: "{{ .Values.global.cadi.cadi_locator_as }}"
+      - name: {{ include "common.name" . }}-readiness
+        command:
         - /root/ready.py
         args:
-        - --container-name
-        - aaf-cs
         - --container-name
         - aaf-locate
         env:
@@ -60,23 +66,17 @@ spec:
               fieldPath: metadata.namespace
         image: "{{ .Values.global.readinessRepository }}/{{ .Values.global.readinessImage }}"
         imagePullPolicy: {{ .Values.global.pullPolicy | default .Values.pullPolicy }}
-        name: {{ include "common.name" . }}-readiness
       containers:
-      - env:
-        - name: CASSANDRA_CLUSTER
-          value: cassandra_container
-        name: {{ include "common.name" . }}
+      - name: {{ include "common.name" . }}
+        command: ["/bin/bash","/opt/app/aaf/bin/cm"]
         image: "{{ include "common.repository" . }}/{{ .Values.image }}"
         imagePullPolicy: {{ .Values.global.pullPolicy | default .Values.pullPolicy }}
-        command: ["/bin/bash","-c"," ln -s /opt/app/osaaf/data /data;/opt/app/aaf/cm/bin/cm"]
         volumeMounts:
-        - mountPath: /opt/app/osaaf
-          name: aaf-persistent-vol
+        - mountPath: "/opt/app/osaaf"
+          name: {{ include "common.name" . }}-config-vol
         - mountPath: /etc/localtime
           name: localtime
           readOnly: true
-        # disable liveness probe when breakpoints set in debugger
-        # so K8s doesn't restart unresponsive container
         {{- if eq .Values.liveness.enabled true }}
         livenessProbe:
           tcpSocket:
@@ -103,12 +103,7 @@ spec:
       - name: localtime
         hostPath:
           path: /etc/localtime
-      - name: aaf-persistent-vol
-      {{- if .Values.global.persistence.enabled }}
-        persistentVolumeClaim:
-          claimName: {{ .Release.Name }}-aaf-pvc
-      {{- else }}
+      - name: {{ include "common.name" . }}-config-vol
         emptyDir: {}
-      {{- end }}
       imagePullSecrets:
       - name: "{{ include "common.namespace" . }}-docker-registry-key"
