@@ -37,11 +37,11 @@ mso:
     max-pool-size: 50
     queue-capacity: 500
   adapters:
-    requestDb:
-      auth: Basic YnBlbDpwYXNzd29yZDEk
-      endpoint: http://so-request-db-adapter.{{ include "common.namespace" . }}:8083
     completemsoprocess:
       endpoint: http://so-openstack-adapter.{{ include "common.namespace" . }}:8087/CompleteMsoProcess
+    requestDb:
+      endpoint: http://so-request-db-adapter.{{ include "common.namespace" . }}:8083
+      auth: Basic YnBlbDpwYXNzd29yZDEk
     db:
       auth: 33293332AEC4930F655D8E2E8BB08937
       password: wLg4sjrAFUS8rfVfdvTXeQ==
@@ -59,21 +59,21 @@ mso:
       auth: 33293332AEC4930F655D8E2E8BB08937
       password: B8EBDE0311F0AF355CF3F2FD505A8CAD
     sdnc:
-      endpoint: http://mso-sdnc-adapter.{{ include "common.namespace" . }}:8086/adapters/SDNCAdapter
+      endpoint: http://so-sdnc-adapter.{{ include "common.namespace" . }}:8086/adapters/SDNCAdapter
       rest:
-        endpoint: http://mso-sdnc-adapter.{{ include "common.namespace" . }}:8086/adapters/rest/v1/sdnc
-      timeout: PT60S
+        endpoint: http://so-sdnc-adapter.{{ include "common.namespace" . }}:8086/adapters/rest/v1/sdnc
+      timeout: PT60M
     tenant:
       endpoint: http://so-openstack-adapter.{{ include "common.namespace" . }}:8087/services/TenantAdapter
     vnf:
       endpoint: http://so-openstack-adapter.{{ include "common.namespace" . }}:8087/services/VnfAdapter
       rest:
-        endpoint: http://so-openstack-adapter.{{ include "common.namespace" . }}:8087/services/rest/vnfs/v1/vnfs
+        endpoint: http://so-openstack-adapter.{{ include "common.namespace" . }}:8087/services/rest/v1/vnfs
     volume-groups:
       rest:
         endpoint: http://so-openstack-adapter.{{ include "common.namespace" . }}g:8087/services/rest/v1/volume-groups
     vnf-async:
-      endpoint: http://so-openstack-adapter.{{ include "common.namespace" . }}:8087/services/VnfAsyncAdapter
+      endpoint: http://so-openstack-adapter.{{ include "common.namespace" . }}:8087/services/VnfAsync
   bpmn:
     process:
       historyTimeToLive: '30'
@@ -95,7 +95,7 @@ mso:
     customer:
       id: testCustIdInfra
   po:
-    timeout: PT60S
+    timeout: PT60M
   request:
     db:
       endpoint: http://so-request-db-adapter.{{ include "common.namespace" . }}:8083/
@@ -113,6 +113,11 @@ mso:
     callback: http://so-openstack-adapter.{{ include "common.namespace" . }}:8087/adapters/rest/SDNCNotify
     endpoint: http://replaceme:28090/optimizationInstance/V1/create
     timeout: PT30M
+  oof:
+    auth: test:testpwd
+    callbackEndpoint: http://so-bpmn-infra.{{ include "common.namespace" . }}:8081/mso/WorkflowMessage
+    endpoint: http://oof-osdf.{{ include "common.namespace" . }}:8698/api/oof/v1/placement
+    timeout: PT30M
   workflow:
     CreateGenericVNFV1:
       aai:
@@ -120,11 +125,32 @@ mso:
           uri: /aai/v6/cloud-infrastructure/volume-groups/volume-group
     default:
       aai:
-        version: '8'
+        version: '14'
         cloud-region:
-          version: '9'
+          version: '14'
         generic-vnf:
-          version: '9'
+          version: '14'
+        v14:
+          customer:
+            uri: /aai/v14/business/customers/customer
+          generic-query:
+            uri: /aai/v14/search/generic-query
+          generic-vnf:
+            uri: /aai/v14/network/generic-vnfs/generic-vnf
+          l3-network:
+            uri: /aai/v14/network/l3-networks/l3-network
+          network-policy:
+            uri: /aai/v14/network/network-policies/network-policy
+          nodes-query:
+            uri: /aai/v14/search/nodes-query
+          route-table-reference:
+            uri: /aai/v14/network/route-table-references/route-table-reference
+          tenant:
+            uri: /aai/v14/cloud-infrastructure/cloud-regions/cloud-region/CloudOwner/RegionOne/tenants/tenant
+          vce:
+            uri: /aai/v14/network/vces/vce
+          vpn-binding:
+            uri: /aai/v14/network/vpn-bindings/vpn-binding
         v11:
           customer:
             uri: /aai/v11/business/customers/customer
@@ -141,7 +167,7 @@ mso:
           route-table-reference:
             uri: /aai/v11/network/route-table-references/route-table-reference
           tenant:
-            uri: /aai/v11/cloud-infrastructure/cloud-regions/cloud-region/att-aic/AAIAIC25/tenants/tenant
+            uri: /aai/v11/cloud-infrastructure/cloud-regions/cloud-region/CloudOwner/RegionOne/tenants/tenant
           vce:
             uri: /aai/v11/network/vces/vce
           vpn-binding:
@@ -162,14 +188,14 @@ mso:
           route-table-reference:
             uri: /aai/v8/network/route-table-references/route-table-reference
           tenant:
-            uri: /aai/v8/cloud-infrastructure/cloud-regions/cloud-region/att-aic/AAIAIC25/tenants/tenant
+            uri: /aai/v8/cloud-infrastructure/cloud-regions/cloud-region/CloudOwner/RegionOne/tenants/tenant
           vce:
             uri: /aai/v8/network/vces/vce
           vpn-binding:
             uri: /aai/v8/network/vpn-bindings/vpn-binding
         v9:
           cloud-region:
-            uri: /aai/v9/cloud-infrastructure/cloud-regions/cloud-region/att-aic
+            uri: /aai/v9/cloud-infrastructure/cloud-regions/cloud-region/CloudOwner
           generic-vnf:
             uri: /aai/v9/network/generic-vnfs/generic-vnf
       retry:
@@ -182,6 +208,7 @@ mso:
       default:
         aai:
           namespace: http://org.onap.aai.inventory/
+          version: 14
     message:
       endpoint: http://so-bpmn-infra.{{ include "common.namespace" . }}:8081/mso/WorkflowMessage
     notification:
@@ -190,13 +217,13 @@ mso:
       callback: http://so-bpmn-infra.{{ include "common.namespace" . }}:8081/mso/SDNCAdapterCallbackService
     vnfadapter:
       create:
-        callback: http://so-bpmn-infra.{{ include "common.namespace" . }}:8081/mso/VNFAdaptercallback
+        callback: http://so-bpmn-infra.{{ include "common.namespace" . }}:8081/mso/vnfAdapterNotify
       delete:
-        callback: http://so-bpmn-infra.{{ include "common.namespace" . }}:8081/mso/VNFAdaptercallback
+        callback: http://so-bpmn-infra.{{ include "common.namespace" . }}:8081/mso/vnfAdapterNotify
       query:
-        callback: http://so-bpmn-infra.{{ include "common.namespace" . }}:8081/mso/VNFAdaptercallback
+        callback: http://so-bpmn-infra.{{ include "common.namespace" . }}:8081/mso/vnfAdapterNotify
       rollback:
-        callback: http://so-bpmn-infra.{{ include "common.namespace" . }}:8081/mso/VNFAdaptercallback
+        callback: http://so-bpmn-infra.{{ include "common.namespace" . }}:8081/mso/vnfAdapterNotify
   global:
     dmaap:
       username: testuser
@@ -214,6 +241,9 @@ sdnc:
   auth: Basic YWRtaW46S3A4Yko0U1hzek0wV1hsaGFrM2VIbGNzZTJnQXc4NHZhb0dHbUp2VXkyVQ==
   host: http://sdnc.{{ include "common.namespace" . }}:8282
   path: /restconf/operations/GENERIC-RESOURCE-API
+  si:
+    svc:
+      types: PORT-MIRROR,PPROBE
 appc:
   client:
     topic:
@@ -232,10 +262,20 @@ appc:
     service: ueb
     poolMembers: message-router.{{ include "common.namespace" . }}:3904,message-router.{{ include "common.namespace" . }}:3904
 server:
-  port: 8081
+  port: {{ index .Values.containerPort }}
   tomcat:
     max-threads: 50
 spring:
+  datasource:
+     driver-class-name: org.mariadb.jdbc.Driver
+     url: jdbc:mariadb://${DB_HOST}:${DB_PORT}/camundabpmn
+     username: ${DB_USERNAME}
+     password: ${DB_PASSWORD}
+     dbcp2:
+      initial-size: 5
+      max-total: 20
+      validation-query: select 1
+      test-on-borrow: true
   security:
     usercredentials:
     -
