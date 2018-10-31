@@ -28,7 +28,7 @@ global:
 #################################################################
 # application image
 repository: nexus3.onap.org:10001
-image: onap/portal-sdk:2.3.0-STAGING-latest
+image: onap/portal-sdk:2.3.0
 pullPolicy: Always
 
 # flag to enable debugging - application support required
@@ -58,6 +58,7 @@ service:
   name: portal-sdk
   portName: portal-sdk
   internalPort: 8080
+  externalPort: 8080
   nodePort: 12
 
 mariadb:
