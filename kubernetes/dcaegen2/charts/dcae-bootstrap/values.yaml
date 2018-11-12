@@ -35,12 +35,17 @@ config:
       host: consul-server
       port: 8500
     cm: dcae-cloudify-manager
+    datafile_collector:
+      port: 30223
+      portSecure: 30262
     dmaap_dr_prov: dmaap-dr-prov
     message_router: message-router
     msb_discovery: msb-discovery
     msb_iag: msb-iag
     policy_pdp: pdp
     sdc: sdc-be
+    ves:
+      port: 30235
   # redisCaching is a string not a boolean!
   redisCaching: "false"
 
@@ -74,16 +79,16 @@ postgres:
 
 # application image
 repository: nexus3.onap.org:10001
-image: onap/org.onap.dcaegen2.deployments.k8s-bootstrap-container:1.4.4
+image: onap/org.onap.dcaegen2.deployments.k8s-bootstrap-container:1.4.5
 
 # DCAE component images to be deployed via Cloudify Manager
 # Use to override default setting in blueprints
 componentImages:
   config_binding_service: onap/org.onap.dcaegen2.platform.configbinding.app-app:2.2.3
-  datafile_collector: onap/org.onap.dcaegen2.collectors.datafile.datafile-app-server:1.0.3
+  datafile_collector: onap/org.onap.dcaegen2.collectors.datafile.datafile-app-server:1.0.4
   deployment_handler: onap/org.onap.dcaegen2.platform.deployment-handler:3.0.3
-  holmes_rules: onap/holmes/rule-management:1.2.0
-  holmes_engine: onap/holmes/engine-management:1.2.0
+  holmes_rules: onap/holmes/rule-management:1.2.3
+  holmes_engine: onap/holmes/engine-management:1.2.2
   inventory: onap/org.onap.dcaegen2.platform.inventory-api:3.0.4
   policy_handler: onap/org.onap.dcaegen2.platform.policy-handler:4.4.0
   service_change_handler: onap/org.onap.dcaegen2.platform.servicechange-handler:1.1.5
@@ -115,4 +120,3 @@ resources:
 # Kubernetes namespace for components deployed via Cloudify manager
 # If empty, use the common namespace
 # dcae_ns: "onap"
-

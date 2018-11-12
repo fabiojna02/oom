@@ -50,15 +50,12 @@ function enable_odl_cluster(){
 }
 
 ODL_HOME=${ODL_HOME:-/opt/opendaylight/current}
-ODL_ADMIN_PASSWORD=${ODL_ADMIN_PASSWORD:-admin}
 SDNC_HOME=${SDNC_HOME:-/opt/onap/ccsdk}
 APPC_HOME=${APPC_HOME:-/opt/onap/appc}
 SLEEP_TIME=${SLEEP_TIME:-120}
 MYSQL_PASSWD=${MYSQL_PASSWD:-{{.Values.config.mariadbRootPassword}}}
 ENABLE_ODL_CLUSTER=${ENABLE_ODL_CLUSTER:-false}
-ENABLE_AAF=${ENABLE_AAF:-false}
-AAF_EXT_IP=${AAF_EXT_IP:-{{.Values.config.aafExtIP}}}
-AAF_EXT_FQDN=${AAF_EXT_FQDN:-{{.Values.config.aafExtFQDN}}}
+ENABLE_AAF=${ENABLE_AAF:-true}
 
 appcInstallStartTime=$(date +%s)
 
@@ -149,7 +146,6 @@ then
         echo "Copying the aaa shiro configuration into opendaylight"
         if $ENABLE_AAF
         then
-             echo "${AAF_EXT_IP} ${AAF_EXT_FQDN}" >> /etc/hosts
              cp ${APPC_HOME}/data/properties/aaa-app-config.xml ${ODL_HOME}/etc/opendaylight/datastore/initial/config/aaa-app-config.xml
         else
              cp ${APPC_HOME}/data/aaa-app-config.xml ${ODL_HOME}/etc/opendaylight/datastore/initial/config/aaa-app-config.xml

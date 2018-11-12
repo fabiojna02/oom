@@ -1,4 +1,5 @@
-# Copyright © 2018 Amdocs, Bell Canada
+#!/bin/bash
+# Copyright (C) 2018 Amdocs, Bell Canada
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,9 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-#!/bin/bash
-
 #
 # Execute tags built to support the hands on demo,
 #
@@ -47,6 +45,11 @@ function usage
 	echo " "
 	echo "       demo.sh <namespace> heatbridge <stack_name> <service_instance_id> <service> <oam-ip-address>"
     echo "               - Run heatbridge against the stack for the given service instance and service"
+	echo " "
+	echo "       demo.sh <namespace> vfwclosedloop <pgn-ip-address>"
+        echo "           - vFWCL: Sets the packet generator to high and low rates, and checks whether the policy "
+        echo "             kicks in to modulate the rates back to medium"
+	echo " "
 }
 
 # Set the defaults
@@ -166,6 +169,16 @@ do
 			TAG="cds"
 			shift
 			;;
+        distributeVFWNG)
+                        TAG="distributeVFWNG"
+                        shift
+                        ;;
+        vfwclosedloop)
+                        TAG="vfwclosedloop"
+                        shift
+                        VARIABLES="$VARIABLES -v pkg_host:$1"
+                        shift
+                        ;;
     	*)
 			usage
 			exit
@@ -174,7 +187,15 @@ done
 
 set -x
 
-ETEHOME=/var/opt/OpenECOMP_ETE
-VARIABLEFILES="-V /share/config/vm_properties.py -V /share/config/integration_robot_properties.py -V /share/config/integration_preload_parameters.py"
 POD=$(kubectl --namespace $NAMESPACE get pods | sed 's/ .*//'| grep robot)
-kubectl --namespace $NAMESPACE exec ${POD} -- ${ETEHOME}/runTags.sh ${VARIABLEFILES} ${VARIABLES} -d /share/logs/demo/${TAG} -i ${TAG} --display 89 2> ${TAG}.out
+
+ETEHOME=/var/opt/OpenECOMP_ETE
+
+export GLOBAL_BUILD_NUMBER=$(kubectl --namespace $NAMESPACE exec  ${POD}  -- bash -c "ls -1q /share/logs/ | wc -l")
+OUTPUT_FOLDER=$(printf %04d $GLOBAL_BUILD_NUMBER)_demo_$key
+DISPLAY_NUM=$(($GLOBAL_BUILD_NUMBER + 90))
+
+VARIABLEFILES="-V /share/config/vm_properties.py -V /share/config/integration_robot_properties.py -V /share/config/integration_preload_parameters.py"
+
+kubectl --namespace $NAMESPACE exec ${POD} -- ${ETEHOME}/runTags.sh ${VARIABLEFILES} ${VARIABLES} -d /share/logs/${OUTPUT_FOLDER} -i ${TAG} --display $DISPLAY_NUM 2> ${TAG}.out
+

@@ -29,9 +29,9 @@ config:
   logstashServiceName: log-ls
   logstashPort: 5044
   environment:
-    dcaeUrl: 10.0.2.15
     workflowUrl: 10.0.2.15
     vnfRepoPort: 8702
+
 
 sdc-es:
   service:
