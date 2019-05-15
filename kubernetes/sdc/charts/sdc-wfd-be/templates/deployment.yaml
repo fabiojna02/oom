@@ -32,6 +32,7 @@ spec:
         release: {{ .Release.Name }}
     spec:
       initContainers:
+      {{- if .Values.initJob.enabled }}
       - name: {{ include "common.name" . }}-job-completion
         image: "{{ .Values.global.readinessRepository }}/{{ .Values.global.readinessImage }}"
         imagePullPolicy: "{{ .Values.global.pullPolicy | default .Values.pullPolicy }}"
@@ -46,12 +47,14 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.namespace
+      {{ end }}
       containers:
         - name: {{ include "common.name" . }}
           image: "{{ include "common.repository" . }}/{{ .Values.image }}"
           imagePullPolicy: {{ .Values.global.pullPolicy | default .Values.pullPolicy }}
           ports:
           - containerPort: {{ .Values.service.internalPort }}
+          - containerPort: {{ .Values.service.internalPort2 }}
           # disable liveness probe when breakpoints set in debugger
           # so K8s doesn't restart unresponsive container
           {{ if .Values.liveness.enabled }}
@@ -70,15 +73,23 @@ spec:
           - name: JAVA_OPTIONS
             value: {{ .Values.config.javaOptions }}
           - name: CS_HOSTS
-            value: "{{ .Values.config.cassandraHosts }}"
+            value: "{{ .Values.global.cassandra.serviceName }}"
           - name: CS_PORT
             value: "{{ .Values.config.cassandraClientPort }}"
+          - name: CS_AUTHENTICATE
+            value: "{{ .Values.config.cassandraAuthenticationEnabled }}"
           - name: CS_USER
             valueFrom:
               secretKeyRef: {name: {{ .Release.Name }}-sdc-cs-secrets, key: sdc_user}
           - name: CS_PASSWORD
             valueFrom:
               secretKeyRef: {name: {{ .Release.Name }}-sdc-cs-secrets, key: sdc_password}
+          - name: CS_SSL_ENABLED
+            value: "{{ .Values.config.cassandraSSLEnabled }}"
+          - name: CS_TRUST_STORE_PATH
+            value: "{{ .Values.config.cassandraTrustStorePath }}"
+          - name: CS_TRUST_STORE_PASSWORD
+            value: "{{ .Values.config.cassandraTrustStorePassword }}"
           - name: SDC_PROTOCOL
             value: "{{ .Values.config.sdcProtocol }}"
           - name: SDC_ENDPOINT
@@ -87,5 +98,17 @@ spec:
             value: "{{ .Values.config.sdcExternalUser }}"
           - name: SDC_PASSWORD
             value: "{{ .Values.config.sdcExternalUserPassword }}"
+          - name: SERVER_SSL_ENABLED
+            value: "{{ .Values.config.serverSSLEnabled }}"
+          - name: SERVER_SSL_KEYSTORE_TYPE
+            value: "{{ .Values.config.serverSSLKeyStoreType }}"
+          - name: SERVER_SSL_KEYSTORE_PATH
+            value: "{{ .Values.config.serverSSLKeyStorePath }}"
+          - name: SERVER_SSL_KEY_PASSWORD
+            value: "{{ .Values.config.serverSSLKeyPassword }}"
+          volumeMounts:
+            {{- template "sdc-wfd-be.volumeMounts" . }}
+      volumes:
+        {{- template "sdc-wfd-be.volumes" . }}
       imagePullSecrets:
       - name: "{{ include "common.namespace" . }}-docker-registry-key"

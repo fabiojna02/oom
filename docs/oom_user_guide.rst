@@ -52,18 +52,22 @@ ONAP with a few simple commands.
 
 Pre-requisites
 --------------
-Your environment must have both the Kubernetes `kubectl` and Helm setup as a one time activity.
+Your environment must have both the Kubernetes `kubectl` and Helm setup as a
+one time activity.
 
 Install Kubectl
 ~~~~~~~~~~~~~~~
-Enter the following to install kubectl (on Ubuntu, there are slight differences on other O/Ss), the Kubernetes command line interface used to manage a Kubernetes cluster::
+Enter the following to install kubectl (on Ubuntu, there are slight differences
+on other O/Ss), the Kubernetes command line interface used to manage a
+Kubernetes cluster::
 
   > curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.8.10/bin/linux/amd64/kubectl
   > chmod +x ./kubectl
   > sudo mv ./kubectl /usr/local/bin/kubectl
   > mkdir ~/.kube
 
-Paste kubectl config from Rancher (see the :ref:`cloud-setup-guide-label` for alternative Kubernetes environment setups) into the `~/.kube/config` file.
+Paste kubectl config from Rancher (see the :ref:`cloud-setup-guide-label` for
+alternative Kubernetes environment setups) into the `~/.kube/config` file.
 
 Verify that the Kubernetes config is correct::
 
@@ -73,7 +77,8 @@ At this point you should see six Kubernetes pods running.
 
 Install Helm
 ~~~~~~~~~~~~
-Helm is used by OOM for package and configuration management. To install Helm, enter the following::
+Helm is used by OOM for package and configuration management. To install Helm,
+enter the following::
 
   > wget http://storage.googleapis.com/kubernetes-helm/helm-v2.9.1-linux-amd64.tar.gz
   > tar -zxvf helm-v2.9.1-linux-amd64.tar.gz
@@ -89,7 +94,8 @@ Install the Helm Tiller application and initialize with::
 
 Install the Helm Repo
 ---------------------
-Once kubectl and Helm are setup, one needs to setup a local Helm server to server up the ONAP charts::
+Once kubectl and Helm are setup, one needs to setup a local Helm server to
+server up the ONAP charts::
 
   > helm install osn/onap
 
@@ -108,7 +114,7 @@ stable which should be removed to avoid confusion::
 
 To prepare your system for an installation of ONAP, you'll need to::
 
-  > git clone -b beijing http://gerrit.onap.org/r/oom
+  > git clone -b casablanca http://gerrit.onap.org/r/oom
   > cd oom/kubernetes
 
 
@@ -117,7 +123,8 @@ To setup a local Helm server to server up the ONAP charts::
   > helm init
   > helm serve &
 
-Note the port number that is listed and use it in the Helm repo add as follows::
+Note the port number that is listed and use it in the Helm repo add as
+follows::
 
   > helm repo add local http://127.0.0.1:8879
 
@@ -145,15 +152,20 @@ system, and looks for matches::
 
 In any case, setup of the Helm repository is a one time activity.
 
-Once the repo is setup, installation of ONAP can be done with a single command::
+Next, install Helm Plugins required to deploy the ONAP Casablanca release::
 
-  > helm install local/onap --name development
+  > cp -R helm/plugins/ ~/.helm
+
+Once the repo is setup, installation of ONAP can be done with a single
+command::
+
+  > helm deploy development local/onap --namespace onap
 
 This will install ONAP from a local repository in a 'development' Helm release.
 As described below, to override the default configuration values provided by
 OOM, an environment file can be provided on the command line as follows::
 
-  > helm install local/onap --name development -f onap-development.yaml
+  > helm deploy development local/onap --namespace onap -f overrides.yaml
 
 To get a summary of the status of all of the pods (containers) running in your
 deployment::
@@ -174,9 +186,9 @@ deployment::
 
 
 To install a specific version of a single ONAP component (`so` in this example)
-with the given name enter::
+with the given release name enter::
 
-  > helm install onap/so --version 2.0.1 -n so
+  > helm deploy so onap/so --version 3.0.1
 
 To display details of a specific resource or group of resources type::
 
@@ -282,7 +294,7 @@ value for the vnfDeployment/openstack/oam_network_cidr key as shown below.
 
 To deploy ONAP with this environment file, enter::
 
-  > helm install local/onap -n beijing -f environments/onap-production.yaml
+  > helm deploy local/onap -n casablanca -f environments/onap-production.yaml
 
 .. include:: environments_onap_demo.yaml
    :code: yaml
@@ -357,8 +369,8 @@ blocks access to the ONAP Portal. To enable direct access to this Portal from a
 user's own environment (a laptop etc.) the portal application's port 8989 is
 exposed through a `Kubernetes LoadBalancer`_ object.
 
-Typically, to be able to access the Kubernetes nodes publicly a public address is
-assigned.  In Openstack this is a floating IP address.
+Typically, to be able to access the Kubernetes nodes publicly a public address
+is assigned. In Openstack this is a floating IP address.
 
 When the `portal-app` chart is deployed a Kubernetes service is created that
 instantiates a load balancer.  The LB chooses the private interface of one of
@@ -381,18 +393,33 @@ below::
   10.12.6.155 portal.api.simpledemo.onap.org
   10.12.6.155 vid.api.simpledemo.onap.org
   10.12.6.155 sdc.api.fe.simpledemo.onap.org
+  10.12.6.155 sdc.workflow.plugin.simpledemo.onap.org
+  10.12.6.155 sdc.dcae.plugin.simpledemo.onap.org
   10.12.6.155 portal-sdk.simpledemo.onap.org
   10.12.6.155 policy.api.simpledemo.onap.org
   10.12.6.155 aai.api.sparky.simpledemo.onap.org
   10.12.6.155 cli.api.simpledemo.onap.org
   10.12.6.155 msb.api.discovery.simpledemo.onap.org
+  10.12.6.155 msb.api.simpledemo.onap.org
+  10.12.6.155 clamp.api.simpledemo.onap.org
+  10.12.6.155 so.api.simpledemo.onap.org
 
 Ensure you've disabled any proxy settings the browser you are using to access
-the portal and then simply access the familiar URL:
-http://portal.api.simpledemo.onap.org:8989/ONAPPORTAL/login.htm
+the portal and then simply access now the new ssl-encrypted URL:
+https://portal.api.simpledemo.onap.org:30225/ONAPPORTAL/login.htm
 
+.. note::
+  Using the HTTPS based Portal URL the Browser needs to be configured to accept
+  unsecure credentials.
+  Additionally when opening an Application inside the Portal, the Browser
+  might block the content, which requires to disable the blocking and reloading
+  of the page
 
-.. note::     
+.. note::
+  Besides the ONAP Portal the Components can deliver additional user interfaces,
+  please check the Component specific documentation.
+
+.. note::
 
    | Alternatives Considered:
 
@@ -432,7 +459,8 @@ to monitor the real-time health of an ONAP deployment:
 - a set of liveness probes which feed into the Kubernetes manager which
   are described in the Heal section.
 
-Within ONAP, Consul is the monitoring system of choice and deployed by OOM in two parts:
+Within ONAP, Consul is the monitoring system of choice and deployed by OOM in
+two parts:
 
 - a three-way, centralized Consul server cluster is deployed as a highly
   available monitor of all of the ONAP components, and
@@ -572,14 +600,14 @@ sequence of events described in the previous paragraph would be initiated.
 For example, to upgrade a container by changing configuration, specifically an
 environment value::
 
-  > helm upgrade beijing onap/so --version 2.0.1 --set enableDebug=true
+  > helm deploy casablanca onap/so --version 2.0.1 --set enableDebug=true
 
 Issuing this command will result in the appropriate container being stopped by
 Kubernetes and replaced with a new container with the new environment value.
 
 To upgrade a component to a new version with a new configuration file enter::
 
-  > helm upgrade beijing onap/so --version 2.0.2 -f environments/demo.yaml
+  > helm deploy casablanca onap/so --version 2.0.2 -f environments/demo.yaml
 
 To fetch release history enter::
 
@@ -672,19 +700,20 @@ from a running deployment the operator perform a 'dry-run' to display exactly
 what will happen with a given command prior to actually deleting anything.  For
 example::
 
-  > helm delete --dry-run beijing
+  > helm undeploy casablanca --dry-run
 
-will display the outcome of deleting the 'beijing' release from the deployment.
+will display the outcome of deleting the 'casablanca' release from the
+deployment.
 To completely delete a release and remove it from the internal store enter::
 
-  > helm delete --purge beijing
+  > helm undeploy casablanca --purge
 
 One can also remove individual components from a deployment by changing the
 ONAP configuration values.  For example, to remove `so` from a running
 deployment enter::
 
-  > helm upgrade beijing osn/onap --set so.enabled=false
+  > helm undeploy casablanca-so --purge
 
 will remove `so` as the configuration indicates it's no longer part of the
 deployment. This might be useful if a one wanted to replace just `so` by
-installing a custom version.  
+installing a custom version.

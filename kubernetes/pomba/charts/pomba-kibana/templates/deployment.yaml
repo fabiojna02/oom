@@ -45,7 +45,6 @@ spec:
         image: "{{ .Values.global.readinessRepository }}/{{ .Values.global.readinessImage }}"
         imagePullPolicy: {{ .Values.global.pullPolicy | default .Values.pullPolicy }}
         name: {{ include "common.name" . }}-readiness
-      containers:
       - args:
         - --output=http://{{.Values.config.elasticsearchServiceName}}.{{ include "common.namespace" . }}:{{.Values.config.elasticsearchPort}}/.kibana
         - --input=/config/default-mapping.json
@@ -80,50 +79,19 @@ spec:
           - mountPath: /config/default.json
             name: {{ include "common.fullname" . }}
             subPath: default.json
-      - args:
-        - --output=http://{{.Values.config.elasticsearchServiceName}}.{{ include "common.namespace" . }}:{{.Values.config.elasticsearchPort}}/service-validations
-        - --input=/config/validationsDump.json
-        - --type=mapping
-        env:
-        - name: NAMESPACE
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: metadata.namespace
-        image: "{{ .Values.configRepository }}/{{ .Values.configImage }}"
-        imagePullPolicy: {{ .Values.global.pullPolicy | default .Values.pullPolicy }}
-        name: {{ include "common.name" . }}-config-validation
-        volumeMounts:
-          - mountPath: /config/validationsDump.json
-            name: {{ include "common.fullname" . }}
-            subPath: validationsDump.json
-      - args:
-        - --output=http://{{.Values.config.elasticsearchServiceName}}.{{ include "common.namespace" . }}:{{.Values.config.elasticsearchPort}}/service-violations
-        - --input=/config/violationsDump.json
-        - --type=mapping
-        env:
-        - name: NAMESPACE
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: metadata.namespace
-        image: "{{ .Values.configRepository }}/{{ .Values.configImage }}"
-        imagePullPolicy: {{ .Values.global.pullPolicy | default .Values.pullPolicy }}
-        name: {{ include "common.name" . }}-config-violation
-        volumeMounts:
-          - mountPath: /config/violationsDump.json
-            name: {{ include "common.fullname" . }}
-            subPath: violationsDump.json            
       containers:
         - name: {{ include "common.name" . }}
           image: "{{ .Values.global.loggingRepository | default .Values.loggingRepository }}/{{ .Values.image }}"
           imagePullPolicy: {{ .Values.global.pullPolicy | default .Values.pullPolicy }}
+          command: ["/bin/bash"]
+          args: ["-c", "/opt/app/bin/kibana_start.sh"]
           ports:
           - containerPort: {{ .Values.service.internalPort }}
             name: {{ .Values.service.name }}
           readinessProbe:
             httpGet:
               path: "/"
+              scheme: "HTTPS"
               port: {{ .Values.service.internalPort }}
             initialDelaySeconds: {{ .Values.readiness.initialDelaySeconds }}
             periodSeconds: {{ .Values.readiness.periodSeconds }}
@@ -134,6 +102,7 @@ spec:
           livenessProbe:
             httpGet:
               path: "/"
+              scheme: "HTTPS"
               port: {{ .Values.service.internalPort }}
             initialDelaySeconds: {{ .Values.liveness.initialDelaySeconds }}
             periodSeconds: {{ .Values.liveness.periodSeconds }}
@@ -144,8 +113,12 @@ spec:
           - mountPath: /etc/localtime
             name: localtime
             readOnly: true
-          - mountPath: /usr/share/kibana/config/
+          - mountPath: /usr/share/kibana/config
             name: {{ include "common.fullname" . }}
+          - mountPath: /opt/app/auth
+            name: {{ include "common.fullname" . }}-auth
+          - mountPath: /opt/app/bin
+            name: {{ include "common.fullname" . }}-bin
           resources:
 {{ include "common.resources" . | indent 12 }}
         {{- if .Values.nodeSelector }}
@@ -167,12 +140,16 @@ spec:
             - key: kibana.yml
               path: kibana.yml
             - key: default.json
-              path: default.json                    
-            - key: validationsDump.json
-              path: validationsDump.json
-            - key: violationsDump.json
-              path: violationsDump.json
+              path: default.json
             - key: default-mapping.json
-              path: default-mapping.json                                                                                                       
+              path: default-mapping.json
+        - name: {{ include "common.fullname" . }}-auth
+          configMap:
+            name: {{ include "common.fullname" . }}-auth
+            defaultMode: 0777
+        - name: {{ include "common.fullname" . }}-bin
+          configMap:
+            name: {{ include "common.fullname" . }}-bin
+            defaultMode: 0777
       imagePullSecrets:
       - name: "{{ include "common.namespace" . }}-docker-registry-key"

@@ -22,3 +22,21 @@ global:
   readinessImage: readiness-check:2.0.0
   loggingRepository: docker.elastic.co
   loggingImage: beats/filebeat:5.5.0
+  clientImage: onap/dmaap/dbc-client:1.0.9
+
+#Global DMaaP app config
+  allow_http: true
+
+# application configuration
+config:
+  logstashServiceName: log-ls
+  logstashPort: 5044
+
+message-router:
+  enabled: true
+dmaap-bc:
+  enabled: true
+dmaap-dr-node:
+  enabled: true
+dmaap-dr-prov:
+  enabled: true

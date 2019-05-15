@@ -24,7 +24,7 @@ global: # global defaults
 
 # application image
 repository: nexus3.onap.org:10001
-image: onap/portal-db:2.3.1
+image: onap/portal-db:2.5.0-STAGING-latest
 pullPolicy: Always
 
 readinessImage: readiness-check:2.0.0
@@ -68,6 +68,11 @@ config:
   msbPort: "30280"
   # application's front end hostname.  Must be resolvable on the client side environment
   msbHostName: "msb.api.simpledemo.onap.org"
+  # SO Monitoring assignment for port 30224
+  soMonitoringPort: "30224"
+  # application's front end hostname.  Must be resolvable on the client side environment
+  soMonitoringHostName: "so-monitoring"
+
 
 # default number of instances
 replicaCount: 1

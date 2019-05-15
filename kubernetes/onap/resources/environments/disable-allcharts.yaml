@@ -31,6 +31,8 @@ aai:
   enabled: false
 appc:
   enabled: false
+cassandra:
+  enabled: false
 clamp:
   enabled: false
 cli:
@@ -48,6 +50,8 @@ esr:
 log:
   enabled: false
 sniro-emulator:
+  enabled: false
+mariadb-galera:
   enabled: false
 msb:
   enabled: false
@@ -78,6 +82,4 @@ vfc:
 vid:
   enabled: false
 vnfsdk:
-  enabled: false
-vvp:
   enabled: false

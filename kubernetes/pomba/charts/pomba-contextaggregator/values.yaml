@@ -1,4 +1,4 @@
-# Copyright © 2018 Amdocs
+﻿# Copyright © 2018 Amdocs
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ global:
 # Application configuration defaults.
 #################################################################
 # application image
-image: onap/pomba-context-aggregator:1.3.3
+image: onap/pomba-context-aggregator:1.4.0
 pullPolicy: Always
 
 # flag to enable debugging - application support required
@@ -55,14 +55,14 @@ affinity: {}
 
 # probe configuration parameters
 liveness:
-  initialDelaySeconds: 10
+  initialDelaySeconds: 30
   periodSeconds: 10
   # necessary to disable liveness probe when setting breakpoints
   # in debugger so K8s doesn't restart unresponsive container
   enabled: true
 
 readiness:
-  initialDelaySeconds: 10
+  initialDelaySeconds: 30
   periodSeconds: 10
   enabled: false
 
@@ -75,8 +75,8 @@ service:
 
   #Services may use any combination of ports depending on the 'type' of
   #service being defined.
-  #type: ClusterIP
-  #externalPort: 9529
+  type: ClusterIP
+  externalPort: 9529
   internalPort: 9529
   #nodePort: <replace with unused node port suffix eg. 23>
   # optional port name override - default can be defined in service.yaml

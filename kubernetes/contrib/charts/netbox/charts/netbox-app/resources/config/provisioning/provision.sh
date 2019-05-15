@@ -70,11 +70,11 @@ curl --silent -X POST \
   -H 'Authorization: Token onceuponatimeiplayedwithnetbox20180814' \
   -H 'Content-Type: application/json' \
   -d '{
-  "prefix": "{{ .Values.service.vfw_protected_pool }}",
+  "prefix": "{{ .Values.service.private2 }}",
   "site": 1,
   "tenant": 1,
   "is_pool": false,
-  "description": "IP Pool for protected network - vFW use case"
+  "description": "IP Pool for private network 2"
 }'
 
 echo "Create Prefix for vFW unprotected network"
@@ -83,11 +83,11 @@ curl --silent -X POST \
   -H 'Authorization: Token onceuponatimeiplayedwithnetbox20180814' \
   -H 'Content-Type: application/json' \
   -d '{
-  "prefix": "{{ .Values.service.vfw_unprotected_pool }}",
+  "prefix": "{{ .Values.service.private1 }}",
   "site": 1,
   "tenant": 1,
   "is_pool": false,
-  "description": "IP Pool for unprotected network - vFW use case"
+  "description": "IP Pool for private network 1"
 }'
 
 echo "Create Prefix for ONAP general purpose network"
@@ -96,10 +96,41 @@ curl --silent -X POST \
   -H 'Authorization: Token onceuponatimeiplayedwithnetbox20180814' \
   -H 'Content-Type: application/json' \
   -d '{
-  "prefix": "{{ .Values.service.vfw_mgmt_pool }}",
+  "prefix": "{{ .Values.service.management }}",
   "site": 1,
   "tenant": 1,
   "is_pool": false,
   "description": "IP Pool for ONAP - general purpose"
 }'
 
+# Reserve ports, gateway and dhcp, for each protected and unprotected networks.
+
+curl --silent -X  POST \
+  http://{{ .Values.service.name }}:{{ .Values.service.internalPort }}/api/ipam/prefixes/1/available-ips/ \
+  -H 'Authorization: Token onceuponatimeiplayedwithnetbox20180814' \
+  -H 'Content-Type: application/json'
+
+curl --silent -X  POST \
+  http://{{ .Values.service.name }}:{{ .Values.service.internalPort }}/api/ipam/prefixes/1/available-ips/ \
+  -H 'Authorization: Token onceuponatimeiplayedwithnetbox20180814' \
+  -H 'Content-Type: application/json'
+
+curl --silent -X  POST \
+  http://{{ .Values.service.name }}:{{ .Values.service.internalPort }}/api/ipam/prefixes/2/available-ips/ \
+  -H 'Authorization: Token onceuponatimeiplayedwithnetbox20180814' \
+  -H 'Content-Type: application/json'
+
+curl --silent -X  POST \
+  http://{{ .Values.service.name }}:{{ .Values.service.internalPort }}/api/ipam/prefixes/2/available-ips/ \
+  -H 'Authorization: Token onceuponatimeiplayedwithnetbox20180814' \
+  -H 'Content-Type: application/json'
+
+curl --silent -X  POST \
+  http://{{ .Values.service.name }}:{{ .Values.service.internalPort }}/api/ipam/prefixes/3/available-ips/ \
+  -H 'Authorization: Token onceuponatimeiplayedwithnetbox20180814' \
+  -H 'Content-Type: application/json'
+
+curl --silent -X  POST \
+  http://{{ .Values.service.name }}:{{ .Values.service.internalPort }}/api/ipam/prefixes/3/available-ips/ \
+  -H 'Authorization: Token onceuponatimeiplayedwithnetbox20180814' \
+  -H 'Content-Type: application/json'

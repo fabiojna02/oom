@@ -31,7 +31,7 @@ global:
 flavor: small
 # application image
 repository: nexus3.onap.org:10001
-image: onap/appc-image:1.4.0
+image: onap/appc-image:1.5.0
 pullPolicy: Always
 
 # flag to enable debugging - application support required
@@ -51,17 +51,18 @@ config:
   enableClustering: false
   configDir: /opt/onap/appc/data/properties
   dmaapTopic: SUCCESS
+  dmaapTopicEnv: AUTO
   logstashServiceName: log-ls
   logstashPort: 5044
-  odlPassword: demo123456!
+  odlPassword: Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U
   openStackType: OpenStackProvider
   openStackName: OpenStack
   openStackKeyStoneUrl: http://localhost:8181/apidoc/explorer/index.html
   openStackServiceTenantName: default
   openStackDomain: default
   openStackUserName: admin
-  openStackEncryptedPassword: admin
-  odlUser: appc@appc.onap.org
+  openStackEncryptedPassword: enc:LDEbHEAvTF1R
+  odlUser: admin
 
 appc-ansible-server:
   service:
@@ -102,15 +103,15 @@ affinity: {}
 
 # probe configuration parameters
 liveness:
-  initialDelaySeconds: 10
-  periodSeconds: 10
+  initialDelaySeconds: 300
+  periodSeconds: 60
   # necessary to disable liveness probe when setting breakpoints
   # in debugger so K8s doesn't restart unresponsive container
   enabled: true
 
 readiness:
-  initialDelaySeconds: 10
-  periodSeconds: 10
+  initialDelaySeconds: 300
+  periodSeconds: 60
 
 service:
   type: NodePort

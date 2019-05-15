@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+{{ if .Values.initJob.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -53,11 +54,11 @@ spec:
         imagePullPolicy: {{ .Values.global.pullPolicy | default .Values.pullPolicy }}
         env:
         - name: CS_HOST
-          value: "sdc-cs"
+          value: "{{ .Values.global.cassandra.serviceName }}"
         - name: CS_PORT
           value: "{{ .Values.config.cassandraThriftClientPort }}"
         - name: CS_AUTHENTICATE
-          value: "{{ .Values.config.cassandaAuthenticationEnabled }}"
+          value: "{{ .Values.config.cassandraAuthenticationEnabled }}"
         - name: CS_USER
           valueFrom:
             secretKeyRef: {name: {{ .Release.Name }}-sdc-cs-secrets, key: sdc_user}
@@ -66,3 +67,4 @@ spec:
             secretKeyRef: {name: {{ .Release.Name }}-sdc-cs-secrets, key: sdc_password}
       imagePullSecrets:
       - name: "{{ include "common.namespace" . }}-docker-registry-key"
+{{ end }}

@@ -28,7 +28,7 @@ global:
 #################################################################
 # application image
 repository: nexus3.onap.org:10001
-image: onap/policy-apex-pdp:2.0.3
+image: onap/policy-apex-pdp:2.1-SNAPSHOT-latest
 pullPolicy: Always
 
 # flag to enable debugging - application support required
@@ -59,7 +59,7 @@ service:
   type: NodePort
   name: policy-apex-pdp
   portName: policy-apex-pdp
-  externalPort: 12345
+  externalPort: 6969
   nodePort: 37
 
 ingress:

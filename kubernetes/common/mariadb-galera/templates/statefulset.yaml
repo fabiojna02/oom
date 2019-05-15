@@ -29,6 +29,9 @@ spec:
     metadata:
       labels:
         app: {{ include "common.fullname" . }}
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        release: "{{ .Release.Name }}"
+        heritage: "{{ .Release.Service }}"
       annotations:
         pod.alpha.kubernetes.io/initialized: "true"
     spec:
@@ -110,6 +113,7 @@ spec:
       initContainers:
         - name: mariadb-galera-prepare
           image: "{{ include "common.repository" . }}/{{ .Values.imageInit }}"
+          imagePullPolicy: {{ .Values.global.pullPolicy | default .Values.pullPolicy | quote}}
           command: ["sh", "-c", "chown -R 27:27 /var/lib/mysql"]
           volumeMounts:
             - name: {{ include "common.fullname" . }}-data
@@ -119,6 +123,9 @@ spec:
       name: {{ include "common.fullname" . }}-data
       labels:
         name: {{ include "common.fullname" . }}
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        release: "{{ .Release.Name }}"
+        heritage: "{{ .Release.Service }}"
     spec:
       accessModes:
       - {{ .Values.persistence.accessMode | quote }}

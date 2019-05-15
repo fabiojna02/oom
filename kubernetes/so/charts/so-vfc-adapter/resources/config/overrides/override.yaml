@@ -19,11 +19,14 @@ spring:
      url: jdbc:mariadb://${DB_HOST}:${DB_PORT}/requestdb
      username: ${DB_USERNAME}
      password: ${DB_PASSWORD}
-     dbcp2:
-      initial-size: 5
-      max-total: 20
-      validation-query: select 1
-      test-on-borrow: true
+  security:
+    usercredentials:
+    - username: bpel
+      password: '$2a$10$Fh9ffgPw2vnmsghsRD3ZauBL1aKXebigbq3BB1RPWtE62UDILsjke'
+      role: BPEL-Client
+    - username: mso_admin
+      password: '$2a$10$Fh9ffgPw2vnmsghsRD3ZauBL1aKXebigbq3BB1RPWtE62UDILsjke'
+      role: ACTUATOR
 server:
     port: {{ index .Values.containerPort }}
     tomcat:
@@ -31,6 +34,8 @@ server:
 mso:
   site-name: localSite
   logPath: ./logs/vfc
+  msb-ip: msb-iag.{{ include "common.namespace" . }}
+  msb-port: 80
   adapters:
     requestDb:
       endpoint: https://so-request-db-adapter.{{ include "common.namespace" . }}:8083

@@ -1,5 +1,5 @@
 # Copyright © 2017 Amdocs, Bell Canada, AT&T
-# Modifications Copyright © 2018 AT&T. All rights reserved.
+# Modifications Copyright © 2018-2019 AT&T. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ echo "Upload BRMS Param Template"
 
 sleep 2
 
-wget -O cl-amsterdam-template.drl https://git.onap.org/policy/drools-applications/plain/controlloop/templates/archetype-cl-amsterdam/src/main/resources/archetype-resources/src/main/resources/__closedLoopControlName__.drl?h=casablanca
+wget -O cl-amsterdam-template.drl https://git.onap.org/policy/drools-applications/plain/controlloop/templates/archetype-cl-amsterdam/src/main/resources/archetype-resources/src/main/resources/__closedLoopControlName__.drl
 
 sleep 2
 
@@ -139,6 +139,26 @@ curl -k -v --silent -X PUT --header 'Content-Type: application/json' --header 'A
     }
 }' 'https://{{.Values.global.pdp.nameOverride}}:{{.Values.config.pdpPort}}/pdp/api/createPolicy'
 
+sleep 2
+
+echo "Create BRMSParamCCVPN Policy"
+curl -k -v --silent -X PUT --header 'Content-Type: application/json' --header 'Accept: text/html' --header 'ClientAuth: cHl0aG9uOnRlc3Q=' --header 'Authorization: Basic dGVzdHBkcDphbHBoYTEyMw==' --header 'Environment: TEST' -d '{
+    "policyConfigType": "BRMS_PARAM",
+    "policyName": "com.BRMSParamCCVPN",
+    "policyDescription": "BRMS Param CCVPN policy",
+    "policyScope": "com",
+    "attributes": {
+        "MATCHING": {
+            "controller" : "amsterdam"
+        },
+        "RULE": {
+            "templateName": "ClosedLoopControlName",
+            "closedLoopControlName": "ControlLoop-CCVPN-2179b738-fd36-4843-a71a-a8c24c70c66b",
+            "controlLoopYaml": "controlLoop%3A%0D%0A++version%3A+2.0.0%0D%0A++controlLoopName%3A+ControlLoop-CCVPN-2179b738-fd36-4843-a71a-a8c24c70c66b%0D%0A++trigger_policy%3A+unique-policy-id-16-Reroute%0D%0A++timeout%3A+3600%0D%0A++abatement%3A+false%0D%0A+%0D%0Apolicies%3A%0D%0A++-+id%3A+unique-policy-id-16-Reroute%0D%0A++++name%3A+Connectivity Reroute%0D%0A++++description%3A%0D%0A++++actor%3A+SDNC%0D%0A++++recipe%3A+Reroute%0D%0A++++target%3A%0D%0A++++++type%3A+VM%0D%0A++++retry%3A+3%0D%0A++++timeout%3A+1200%0D%0A++++success%3A+final_success%0D%0A++++failure%3A+final_failure%0D%0A++++failure_timeout%3A+final_failure_timeout%0D%0A++++failure_retries%3A+final_failure_retries%0D%0A++++failure_exception%3A+final_failure_exception%0D%0A++++failure_guard%3A+final_failure_guard"
+        }
+    }
+}' 'https://{{.Values.global.pdp.nameOverride}}:{{.Values.config.pdpPort}}/pdp/api/createPolicy'
+
 #########################################Create Micro Service Config policies##########################################
 
 echo "Create MicroService Config Policies"
@@ -177,51 +197,21 @@ curl -k -v --silent -X PUT --header 'Content-Type: application/json' --header 'A
 
 #########################################Create SDNC Naming Policies##########################################
 
-echo "Create SDNC Naming Policies"
+echo "Create Generic SDNC Naming Policy for VNF"
 
 sleep 2
 
 echo "Create SDNC vFW Naming Policy"
 curl -k -v --silent -X PUT --header 'Content-Type: application/json' --header 'Accept: text/plain' --header 'ClientAuth: cHl0aG9uOnRlc3Q=' --header 'Authorization: Basic dGVzdHBkcDphbHBoYTEyMw==' --header 'Environment: TEST' -d '{
-    "configBody": "{\"service\":\"SDNC-GenerateName\",\"version\":\"CSIT\",\"content\":{\"policy-instance-name\":\"ONAP_VFW_NAMING_TIMESTAMP\",\"naming-models\":[{\"naming-properties\":[{\"property-name\":\"AIC_CLOUD_REGION\"},{\"property-name\":\"nfRole\"},{\"property-name\":\"TIMESTAMP\"},{\"property-value\":\"_\",\"property-name\":\"DELIMITER\"}],\"naming-type\":\"VNF\",\"nfRole\":\"vFW\",\"naming-recipe\":\"AIC_CLOUD_REGION|DELIMITER|nfRole|DELIMITER|TIMESTAMP\"},{\"naming-properties\":[{\"property-name\":\"VNF_NAME\"},{\"property-name\":\"SEQUENCE\",\"increment-sequence\":{\"max\":\"zzz\",\"scope\":\"ENTIRETY\",\"start-value\":\"001\",\"length\":\"3\",\"increment\":\"1\",\"sequence-type\":\"alpha-numeric\"}},{\"property-name\":\"NFC_NAMING_CODE\"},{\"property-value\":\"_\",\"property-name\":\"DELIMITER\"}],\"naming-type\":\"VNFC\",\"nfRole\":\"vFW\",\"naming-recipe\":\"VNF_NAME|DELIMITER|NFC_NAMING_CODE|DELIMITER|SEQUENCE\"},{\"naming-properties\":[{\"property-name\":\"VNF_NAME\"},{\"property-value\":\"_\",\"property-name\":\"DELIMITER\"},{\"property-name\":\"VF_MODULE_LABEL\"},{\"property-name\":\"VF_MODULE_TYPE\"},{\"property-name\":\"SEQUENCE\",\"increment-sequence\":{\"max\":\"zzz\",\"scope\":\"PRECEEDING\",\"start-value\":\"01\",\"length\":\"3\",\"increment\":\"1\",\"sequence-type\":\"alpha-numeric\"}}],\"naming-type\":\"VF-MODULE\",\"nfRole\":\"vFW\",\"naming-recipe\":\"VNF_NAME|DELIMITER|VF_MODULE_LABEL|DELIMITER|VF_MODULE_TYPE|DELIMITER|SEQUENCE\"},{\"naming-properties\":[{\"property-name\":\"VNF_NAME\"}],\"naming-type\":\"KEY\",\"nfRole\":\"vFW\",\"naming-recipe\":\"VNF_NAME\"},{\"naming-properties\":[{\"property-name\":\"VNF_NAME\"},{\"property-value\":\"protected\",\"property-name\":\"CONSTANT\"},{\"property-value\":\"_\",\"property-name\":\"DELIMITER\"}],\"naming-type\":\"protected_private_net_id\",\"nfRole\":\"vFW\",\"naming-recipe\":\"VNF_NAME|DELIMITER|CONSTANT\"},{\"naming-properties\":[{\"property-name\":\"VNF_NAME\"},{\"property-value\":\"unprotected\",\"property-name\":\"CONSTANT\"},{\"property-value\":\"_\",\"property-name\":\"DELIMITER\"}],\"naming-type\":\"unprotected_private_net_id\",\"nfRole\":\"vFW\",\"naming-recipe\":\"VNF_NAME|DELIMITER|CONSTANT\"}]}}",
-    "policyName": "SDNC_Policy.ONAP_VFW_NAMING_TIMESTAMP",
+    "configBody": "{ \"service\": \"SDNC-GenerateName\", \"version\": \"CSIT\", \"content\": { \"policy-instance-name\": \"ONAP_VNF _NAMING_TIMESTAMP\", \"naming-models\": [ { \"naming-properties\": [ { \"property-name\": \"AIC_CLOUD_REGION\" }, { \"property-name\": \"nfRole\" }, { \"property-name\": \"TIMESTAMP\" }, { \"property-value\": \"_\", \"property-name\": \"DELIMITER\" } ], \"naming-type\": \"VNF\", \"naming-recipe\": \"AIC_CLOUD_REGION|DELIMITER|nfRole|DELIMITER|TIMESTAMP\" }, { \"naming-properties\": [ { \"property-name\": \"VNF_NAME\" }, { \"property-name\": \"SEQUENCE\", \"increment-sequence\": { \"max\": \"zzz\", \"scope\": \"ENTIRETY\", \"start-value\": \"001\", \"length\": \"3\", \"increment\": \"1\", \"sequence-type\": \"alpha-numeric\" } }, { \"property-name\": \"NFC_NAMING_CODE\" }, { \"property-value\": \"_\", \"property-name\": \"DELIMITER\" } ], \"naming-type\": \"VNFC\", \"naming-recipe\": \"VNF_NAME|DELIMITER|NFC_NAMING_CODE|DELIMITER|SEQUENCE\" }, { \"naming-properties\": [ { \"property-name\": \"VNF_NAME\" }, { \"property-value\": \"_\", \"property-name\": \"DELIMITER\" }, { \"property-name\": \"VF_MODULE_LABEL\" }, { \"property-name\": \"VF_MODULE_TYPE\" }, { \"property-name\": \"SEQUENCE\", \"increment-sequence\": { \"max\": \"zzz\", \"scope\": \"PRECEEDING\", \"start-value\": \"01\", \"length\": \"3\", \"increment\": \"1\", \"sequence-type\": \"alpha-numeric\" } } ], \"naming-type\": \"VF-MODULE\", \"naming-recipe\": \"VNF_NAME|DELIMITER|VF_MODULE_LABEL|DELIMITER|VF_MODULE_TYPE|DELIMITER|SEQUENCE\" } ] } }",
+    "policyName": "SDNC_Policy.ONAP_VNF_NAMING_TIMESTAMP",
     "policyConfigType": "MicroService",
     "onapName": "SDNC",
     "riskLevel": "4",
     "riskType": "test",
     "guard": "false",
     "priority": "4",
-    "description": "ONAP_VFW_NAMING_TIMESTAMP"
-}' 'https://{{.Values.global.pdp.nameOverride}}:{{.Values.config.pdpPort}}/pdp/api/createPolicy'
-
-sleep 2
-
-echo "Create SDNC vPG Naming Policy"
-curl -k -v --silent -X PUT --header 'Content-Type: application/json' --header 'Accept: text/plain' --header 'ClientAuth: cHl0aG9uOnRlc3Q=' --header 'Authorization: Basic dGVzdHBkcDphbHBoYTEyMw==' --header 'Environment: TEST' -d '{
-    "configBody": "{\"service\":\"SDNC-GenerateName\",\"version\":\"CSIT\",\"content\":{\"policy-instance-name\":\"ONAP_VPG_NAMING_TIMESTAMP\",\"naming-models\":[{\"naming-properties\":[{\"property-name\":\"AIC_CLOUD_REGION\"},{\"property-name\":\"nfRole\"},{\"property-name\":\"TIMESTAMP\"},{\"property-value\":\"_\",\"property-name\":\"DELIMITER\"}],\"naming-type\":\"VNF\",\"nfRole\":\"vPG\",\"naming-recipe\":\"AIC_CLOUD_REGION|DELIMITER|nfRole|DELIMITER|TIMESTAMP\"},{\"naming-properties\":[{\"property-name\":\"VNF_NAME\"},{\"property-name\":\"SEQUENCE\",\"increment-sequence\":{\"max\":\"zzz\",\"scope\":\"ENTIRETY\",\"start-value\":\"001\",\"length\":\"3\",\"increment\":\"1\",\"sequence-type\":\"alpha-numeric\"}},{\"property-name\":\"NFC_NAMING_CODE\"},{\"property-value\":\"_\",\"property-name\":\"DELIMITER\"}],\"naming-type\":\"VNFC\",\"nfRole\":\"vPG\",\"naming-recipe\":\"VNF_NAME|DELIMITER|NFC_NAMING_CODE|DELIMITER|SEQUENCE\"},{\"naming-properties\":[{\"property-name\":\"VNF_NAME\"},{\"property-value\":\"_\",\"property-name\":\"DELIMITER\"},{\"property-name\":\"VF_MODULE_LABEL\"},{\"property-name\":\"VF_MODULE_TYPE\"},{\"property-name\":\"SEQUENCE\",\"increment-sequence\":{\"max\":\"zzz\",\"scope\":\"PRECEEDING\",\"start-value\":\"01\",\"length\":\"3\",\"increment\":\"1\",\"sequence-type\":\"alpha-numeric\"}}],\"naming-type\":\"VF-MODULE\",\"nfRole\":\"vPG\",\"naming-recipe\":\"VNF_NAME|DELIMITER|VF_MODULE_LABEL|DELIMITER|VF_MODULE_TYPE|DELIMITER|SEQUENCE\"},{\"naming-properties\":[{\"property-name\":\"VNF_NAME\"}],\"naming-type\":\"KEY\",\"nfRole\":\"vPG\",\"naming-recipe\":\"VNF_NAME\"},{\"naming-properties\":[{\"property-name\":\"VNF_NAME\"},{\"property-value\":\"protected\",\"property-name\":\"CONSTANT\"},{\"property-value\":\"_\",\"property-name\":\"DELIMITER\"}],\"naming-type\":\"protected_private_net_id\",\"nfRole\":\"vPG\",\"naming-recipe\":\"VNF_NAME|DELIMITER|CONSTANT\"},{\"naming-properties\":[{\"property-name\":\"VNF_NAME\"},{\"property-value\":\"unprotected\",\"property-name\":\"CONSTANT\"},{\"property-value\":\"_\",\"property-name\":\"DELIMITER\"}],\"naming-type\":\"unprotected_private_net_id\",\"nfRole\":\"vPG\",\"naming-recipe\":\"VNF_NAME|DELIMITER|CONSTANT\"}]}}",
-    "policyName": "SDNC_Policy.ONAP_VPG_NAMING_TIMESTAMP",
-    "policyConfigType": "MicroService",
-    "onapName": "SDNC",
-    "riskLevel": "4",
-    "riskType": "test",
-    "guard": "false",
-    "priority": "4",
-    "description": "ONAP_VPG_NAMING_TIMESTAMP"
-}' 'https://{{.Values.global.pdp.nameOverride}}:{{.Values.config.pdpPort}}/pdp/api/createPolicy'
-
-sleep 2
-
-echo "Create SDNC vSN Naming Policy"
-curl -k -v --silent -X PUT --header 'Content-Type: application/json' --header 'Accept: text/plain' --header 'ClientAuth: cHl0aG9uOnRlc3Q=' --header 'Authorization: Basic dGVzdHBkcDphbHBoYTEyMw==' --header 'Environment: TEST' -d '{
-    "configBody": "{\"service\":\"SDNC-GenerateName\",\"version\":\"CSIT\",\"content\":{\"policy-instance-name\":\"ONAP_VSN_NAMING_TIMESTAMP\",\"naming-models\":[{\"naming-properties\":[{\"property-name\":\"AIC_CLOUD_REGION\"},{\"property-name\":\"nfRole\"},{\"property-name\":\"TIMESTAMP\"},{\"property-value\":\"_\",\"property-name\":\"DELIMITER\"}],\"naming-type\":\"VNF\",\"nfRole\":\"vSN\",\"naming-recipe\":\"AIC_CLOUD_REGION|DELIMITER|nfRole|DELIMITER|TIMESTAMP\"},{\"naming-properties\":[{\"property-name\":\"VNF_NAME\"},{\"property-name\":\"SEQUENCE\",\"increment-sequence\":{\"max\":\"zzz\",\"scope\":\"ENTIRETY\",\"start-value\":\"001\",\"length\":\"3\",\"increment\":\"1\",\"sequence-type\":\"alpha-numeric\"}},{\"property-name\":\"NFC_NAMING_CODE\"},{\"property-value\":\"_\",\"property-name\":\"DELIMITER\"}],\"naming-type\":\"VNFC\",\"nfRole\":\"vSN\",\"naming-recipe\":\"VNF_NAME|DELIMITER|NFC_NAMING_CODE|DELIMITER|SEQUENCE\"},{\"naming-properties\":[{\"property-name\":\"VNF_NAME\"},{\"property-value\":\"_\",\"property-name\":\"DELIMITER\"},{\"property-name\":\"VF_MODULE_LABEL\"},{\"property-name\":\"VF_MODULE_TYPE\"},{\"property-name\":\"SEQUENCE\",\"increment-sequence\":{\"max\":\"zzz\",\"scope\":\"PRECEEDING\",\"start-value\":\"01\",\"length\":\"3\",\"increment\":\"1\",\"sequence-type\":\"alpha-numeric\"}}],\"naming-type\":\"VF-MODULE\",\"nfRole\":\"vSN\",\"naming-recipe\":\"VNF_NAME|DELIMITER|VF_MODULE_LABEL|DELIMITER|VF_MODULE_TYPE|DELIMITER|SEQUENCE\"},{\"naming-properties\":[{\"property-name\":\"VNF_NAME\"}],\"naming-type\":\"KEY\",\"nfRole\":\"vSN\",\"naming-recipe\":\"VNF_NAME\"},{\"naming-properties\":[{\"property-name\":\"VNF_NAME\"},{\"property-value\":\"protected\",\"property-name\":\"CONSTANT\"},{\"property-value\":\"_\",\"property-name\":\"DELIMITER\"}],\"naming-type\":\"protected_private_net_id\",\"nfRole\":\"vSN\",\"naming-recipe\":\"VNF_NAME|DELIMITER|CONSTANT\"},{\"naming-properties\":[{\"property-name\":\"VNF_NAME\"},{\"property-value\":\"unprotected\",\"property-name\":\"CONSTANT\"},{\"property-value\":\"_\",\"property-name\":\"DELIMITER\"}],\"naming-type\":\"unprotected_private_net_id\",\"nfRole\":\"vSN\",\"naming-recipe\":\"VNF_NAME|DELIMITER|CONSTANT\"}]}}",
-    "policyName": "SDNC_Policy.ONAP_VSN_NAMING_TIMESTAMP",
-    "policyConfigType": "MicroService",
-    "onapName": "SDNC",
-    "riskLevel": "4",
-    "riskType": "test",
-    "guard": "false",
-    "priority": "4",
-    "description": "ONAP_VSN_NAMING_TIMESTAMP"
+    "description": "ONAP_VNF_NAMING_TIMESTAMP"
 }' 'https://{{.Values.global.pdp.nameOverride}}:{{.Values.config.pdpPort}}/pdp/api/createPolicy'
 
 #########################################Creating OOF PCI Policies##########################################
@@ -272,7 +262,7 @@ curl -k -v --silent -X PUT --header 'Content-Type: application/json' --header 'A
     "policyClass": "Decision",
     "policyName": "com.AllPermitGuard",
     "policyDescription": "Testing all Permit YAML Guard Policy",
-    "ecompName": "PDPD",
+    "onapName": "PDPD",
     "ruleProvider": "GUARD_YAML",
     "attributes": {
         "MATCHING": {
@@ -284,7 +274,7 @@ curl -k -v --silent -X PUT --header 'Content-Type: application/json' --header 'A
             "timeWindow": "1",
             "timeUnits": "minute",
             "guardActiveStart": "00:00:01-05:00",
-            "guardActiveEnd": "00:00:00-05:00"
+            "guardActiveEnd": "23:59:59-05:00"
         }
     }
 }' 'https://{{.Values.global.pdp.nameOverride}}:{{.Values.config.pdpPort}}/pdp/api/createPolicy'
@@ -296,7 +286,7 @@ curl -k -v --silent -X PUT --header 'Content-Type: application/json' --header 'A
     "policyClass": "Decision",
     "policyName": "com.vDNS_Frequency",
     "policyDescription": "Limit vDNS Scale Up over time period",
-    "ecompName": "PDPD",
+    "onapName": "PDPD",
     "ruleProvider": "GUARD_YAML",
     "attributes": {
         "MATCHING": {
@@ -308,7 +298,7 @@ curl -k -v --silent -X PUT --header 'Content-Type: application/json' --header 'A
             "timeWindow": "10",
             "timeUnits": "minute",
             "guardActiveStart": "00:00:01-05:00",
-            "guardActiveEnd": "00:00:00-05:00"
+            "guardActiveEnd": "23:59:59-05:00"
         }
     }
 }' 'https://{{.Values.global.pdp.nameOverride}}:{{.Values.config.pdpPort}}/pdp/api/createPolicy'
@@ -320,7 +310,7 @@ curl -k -v --silent -X PUT --header 'Content-Type: application/json' --header 'A
     "policyClass": "Decision",
     "policyName": "com.vDNS_MinMax",
     "policyDescription": "Ensure number of instances within a range",
-    "ecompName": "PDPD",
+    "onapName": "SampleDemo",
     "ruleProvider": "GUARD_MIN_MAX",
     "attributes": {
         "MATCHING": {
@@ -331,7 +321,7 @@ curl -k -v --silent -X PUT --header 'Content-Type: application/json' --header 'A
             "min": "1",
             "max": "5",
             "guardActiveStart": "00:00:01-05:00",
-            "guardActiveEnd": "00:00:00-05:00"
+            "guardActiveEnd": "23:59:59-05:00"
         }
     }
 }' 'https://{{.Values.global.pdp.nameOverride}}:{{.Values.config.pdpPort}}/pdp/api/createPolicy'
@@ -414,6 +404,15 @@ curl -k -v --silent -X PUT --header 'Content-Type: application/json' --header 'A
   "policyType": "BRMS_Param"
 }' 'https://{{.Values.global.pdp.nameOverride}}:{{.Values.config.pdpPort}}/pdp/api/pushPolicy'
 
+sleep 2
+
+echo "pushPolicy : PUT : com.BRMSParamCCVPN"
+curl -k -v --silent -X PUT --header 'Content-Type: application/json' --header 'Accept: text/plain' --header 'ClientAuth: cHl0aG9uOnRlc3Q=' --header 'Authorization: Basic dGVzdHBkcDphbHBoYTEyMw==' --header 'Environment: TEST' -d '{
+  "pdpGroup": "default",
+  "policyName": "com.BRMSParamCCVPN",
+  "policyType": "BRMS_Param"
+}' 'https://{{.Values.global.pdp.nameOverride}}:{{.Values.config.pdpPort}}/pdp/api/pushPolicy'
+
 #########################################Pushing MicroService Config policies##########################################
 
 echo "Pushing MicroService Config policies"
@@ -450,28 +449,10 @@ echo "Pushing SDNC Naming Policies"
 
 sleep 2
 
-echo "pushPolicy : PUT : SDNC_Policy.ONAP_VFW_NAMING_TIMESTAMP"
+echo "pushPolicy : PUT : SDNC_Policy.ONAP_VNF_NAMING_TIMESTAMP"
 curl -k -v --silent -X PUT --header 'Content-Type: application/json' --header 'Accept: text/plain' --header 'ClientAuth: cHl0aG9uOnRlc3Q=' --header 'Authorization: Basic dGVzdHBkcDphbHBoYTEyMw==' --header 'Environment: TEST' -d '{
   "pdpGroup": "default",
-  "policyName": "SDNC_Policy.ONAP_VFW_NAMING_TIMESTAMP",
-  "policyType": "MicroService"
-}' 'https://{{.Values.global.pdp.nameOverride}}:{{.Values.config.pdpPort}}/pdp/api/pushPolicy'
-
-sleep 10
-
-echo "pushPolicy : PUT : SDNC_Policy.ONAP_VPG_NAMING_TIMESTAMP"
-curl -k -v --silent -X PUT --header 'Content-Type: application/json' --header 'Accept: text/plain' --header 'ClientAuth: cHl0aG9uOnRlc3Q=' --header 'Authorization: Basic dGVzdHBkcDphbHBoYTEyMw==' --header 'Environment: TEST' -d '{
-  "pdpGroup": "default",
-  "policyName": "SDNC_Policy.ONAP_VPG_NAMING_TIMESTAMP",
-  "policyType": "MicroService"
-}' 'https://{{.Values.global.pdp.nameOverride}}:{{.Values.config.pdpPort}}/pdp/api/pushPolicy'
-
-sleep 10
-
-echo "pushPolicy : PUT : SDNC_Policy.ONAP_VSN_NAMING_TIMESTAMP"
-curl -k -v --silent -X PUT --header 'Content-Type: application/json' --header 'Accept: text/plain' --header 'ClientAuth: cHl0aG9uOnRlc3Q=' --header 'Authorization: Basic dGVzdHBkcDphbHBoYTEyMw==' --header 'Environment: TEST' -d '{
-  "pdpGroup": "default",
-  "policyName": "SDNC_Policy.ONAP_VSN_NAMING_TIMESTAMP",
+  "policyName": "SDNC_Policy.ONAP_VNF_NAMING_TIMESTAMP",
   "policyType": "MicroService"
 }' 'https://{{.Values.global.pdp.nameOverride}}:{{.Values.config.pdpPort}}/pdp/api/pushPolicy'
 
