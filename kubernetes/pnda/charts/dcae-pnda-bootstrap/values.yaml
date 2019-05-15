@@ -18,7 +18,7 @@
 # Global configuration defaults.
 #################################################################
 global:
-  nodePortPrefix: 302
+  nodePortPrefixExt: 304
   readinessRepository: oomk8s
   readinessImage: readiness-check:2.0.0
   loggingRepository: docker.elastic.co
@@ -32,13 +32,12 @@ global:
 enabled: false
 
 pnda:
-  version: develop
+  version: release/5.0
   dataNodes: 2
   kafkaNodes: 1
   osUser: centos
   nameserver: 8.8.8.8
   ntp: pool.ntp.org
-  mirrorNodePort: 88
   apps:
     fsType: local
   networkCidr: 10.0.0.0/16
@@ -72,7 +71,7 @@ openstack:
 
 
 repository: pndareg.ctao6.net
-image: pnda-cli:develop
+image: onap/org.onap.dcaegen2.deployments.pnda-bootstrap-container:5.0.0
 pullPolicy: Always
 
 ## Persist data to a persitent volume

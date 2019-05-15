@@ -49,6 +49,7 @@ spec:
         - name: {{ include "common.name" . }}
           command: ["/bin/bash"]
           args: ["-c", "cd /opt/onap/ccsdk && ./startAnsibleServer.sh"]
+
           image: "{{ include "common.repository" . }}/{{ .Values.image }}"
           imagePullPolicy: {{ .Values.global.pullPolicy | default .Values.pullPolicy }}
           ports:

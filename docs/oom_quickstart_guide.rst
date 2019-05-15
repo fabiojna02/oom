@@ -1,6 +1,7 @@
-.. This work is licensed under a Creative Commons Attribution 4.0 International License.
+.. This work is licensed under a
+.. Creative Commons Attribution 4.0 International License.
 .. http://creativecommons.org/licenses/by/4.0
-.. Copyright 2018 Amdocs, Bell Canada
+.. Copyright 2019 Amdocs, Bell Canada
 
 .. _quick-start-label:
 
@@ -16,128 +17,83 @@ available), follow the following instructions to deploy ONAP.
 
 **Step 1.** Clone the OOM repository from ONAP gerrit::
 
-  > git clone -b beijing http://gerrit.onap.org/r/oom
+  > git clone -b 4.0.0-ONAP http://gerrit.onap.org/r/oom --recurse-submodules
   > cd oom/kubernetes
 
+**Step 2.** Install Helm Plugins required to deploy ONAP::
 
-**Step 2.** Customize the onap/values.yaml file to suit your deployment. You
-may want to selectively enable or disable ONAP components by changing the
-`enabled: true/false` flags as shown below:
+  > sudo cp -R ~/oom/kubernetes/helm/plugins/ ~/.helm
 
-.. code-block:: yaml
 
-  #################################################################
-  # Global configuration overrides.
-  #
-  # These overrides will affect all helm charts (ie. applications)
-  # that are listed below and are 'enabled'.
-  #################################################################
-  global:
-    # Change to an unused port prefix range to prevent port conflicts
-    # with other instances running within the same k8s cluster
-    nodePortPrefix: 302
-
-    # image repositories
-    repository: nexus3.onap.org:10001
-    repositorySecret: eyJuZXh1czMub25hcC5vcmc6MTAwMDEiOnsidXNlcm5hbWUiOiJkb2NrZXIiLCJwYXNzd29yZCI6ImRvY2tlciIsImVtYWlsIjoiQCIsImF1dGgiOiJaRzlqYTJWeU9tUnZZMnRsY2c9PSJ9fQ==
-    # readiness check
-    readinessRepository: oomk8s
-    # logging agent
-    loggingRepository: docker.elastic.co
-
-    # image pull policy
-    pullPolicy: Always
-
-    # default mount path root directory referenced
-    # by persistent volumes and log files
-    persistence:
-      mountPath: /dockerdata-nfs
-
-    # flag to enable debugging - application support required
-    debugEnabled: false
-
-  #################################################################
-  # Enable/disable and configure helm charts (ie. applications)
-  # to customize the ONAP deployment.
-  #################################################################
-  aaf:
-    enabled: true
-  aai:
-    enabled: true
-  appc:
-    enabled: true
-  clamp:
-    enabled: true
-  cli:
-    enabled: true
-  consul: # Consul Health Check Monitoring
-    enabled: true
-  dcaegen2:
-    enabled: true
-  esr:
-    enabled: true
-  log:
-    enabled: true
-  message-router:
-    enabled: true
-  mock:
-    enabled: true
-  msb:
-    enabled: true
-  multicloud:
-    enabled: true
-  policy:
-    enabled: true
-  portal:
-    enabled: true
-  robot: # Robot Health Check
-    enabled: true
-  sdc:
-    enabled: true
-  sdnc:
-    enabled: true
-  so: # Service Orchestrator
-    enabled: true
-
-    replicaCount: 1
-
-    liveness:
-      # necessary to disable liveness probe when setting breakpoints
-      # in debugger so K8s doesn't restart unresponsive container
-      enabled: true
-
-    # so server configuration
-    config:
-      # message router configuration
-      dmaapTopic: "AUTO"
-      # openstack configuration
-      openStackUserName: "vnf_user"
-      openStackRegion: "RegionOne"
-      openStackKeyStoneUrl: "http://1.2.3.4:5000"
-      openStackServiceTenantName: "service"
-      openStackEncryptedPasswordHere: "c124921a3a0efbe579782cde8227681e"
-
-    # configure embedded mariadb
-    mariadb:
-      config:
-        mariadbRootPassword: password
-  uui:
-    enabled: true
-  vfc:
-    enabled: true
-  vid:
-    enabled: true
-  vnfsdk:
-    enabled: true
+**Step 3.** Customize the helm charts like oom/kubernetes/onap/values.yaml or an override
+file like onap-all.yaml, onap-vfw.yaml or openstack.yaml file to suit your deployment with items like the
+OpenStack tenant information.
 
 .. note::
-  To generate openStackEncryptedPasswordHere :
+  Standard and example override files (e.g. onap-all.yaml, openstack.yaml) can be found in 
+  the oom/kubernetes/onap/resources/overrides/ directory.
 
-  ``root@olc-rancher:~# cd so/resources/config/mso/``
 
-  ``root@olc-rancher:~/oom/kubernetes/so/resources/config/mso# echo -n "<openstack tenant password>" | openssl aes-128-ecb -e -K `cat encryption.key` -nosalt | xxd -c 256 -p``
+ a. You may want to selectively enable or disable ONAP components by changing
+    the `enabled: true/false` flags.
 
-**Step 3.** To setup a local Helm server to server up the ONAP charts::
+
+ b. Encyrpt the OpenStack password using the shell tool for robot and put it in
+    the robot helm charts or robot section of openstack.yaml
+
+
+ c. Encrypt the OpenStack password using the java based script for SO helm charts
+    or SO section of openstack.yaml.
+
+
+ d. Update the OpenStack parameters that will be used by robot, SO and APPC helm
+    charts or use an override file to replace them.
+
+
+
+
+a. Enabling/Disabling Components:
+Here is an example of the nominal entries that need to be provided.
+We have different values file available for different contexts.
+
+.. literalinclude:: onap-values.yaml
+   :language: yaml
+
+
+b. Generating ROBOT Encrypted Password:
+The ROBOT encrypted Password uses the same encryption.key as SO but an
+openssl algorithm that works with the python based Robot Framework.
+
+.. note::
+  To generate ROBOT openStackEncryptedPasswordHere :
+
+  ``cd so/resources/config/mso/``
+
+  ``/oom/kubernetes/so/resources/config/mso# echo -n "<openstack tenant password>" | openssl aes-128-ecb -e -K `cat encryption.key` -nosalt | xxd -c 256 -p``
+
+c. Generating SO Encrypted Password:
+The SO Encrypted Password uses a java based encryption utility since the
+Java encryption library is not easy to integrate with openssl/python that
+ROBOT uses in Dublin.
+
+.. note::
+  To generate SO openStackEncryptedPasswordHere :
+
+  SO_ENCRYPTION_KEY=`cat ~/oom/kubenertes/so/resources/config/mso/encrypt.key`
+  OS_PASSWORD=XXXX_OS_CLEARTESTPASSWORD_XXXX
+
+  git clone http://gerrit.onap.org/r/integration
+  cd integration/deployment/heat/onap-oom/scripts
+  javac Crypto.java
+  java Crypto "$OS_PASSWORD" "$SO_ENCRYPTION_KEY"
+
+
+d. Update the OpenStack parameters:
+
+.. literalinclude:: example-integration-override.yaml
+   :language: yaml
+
+**Step 4.** To setup a local Helm server to server up the ONAP charts::
 
   > helm serve &
 
@@ -146,38 +102,58 @@ follows::
 
   > helm repo add local http://127.0.0.1:8879
 
-**Step 4.** Verify your Helm repository setup with::
+**Step 5.** Verify your Helm repository setup with::
 
   > helm repo list
   NAME   URL
   local  http://127.0.0.1:8879
 
-**Step 5.** Build a local Helm repository (from the kubernetes directory)::
+**Step 6.** Build a local Helm repository (from the kubernetes directory)::
 
-  > make all
+  > make all; make onap
 
-**Step 6.** Display the charts that available to be deployed::
+**Step 7.** Display the onap charts that available to be deployed::
 
-  > helm search -l
-  NAME                    VERSION    DESCRIPTION
-  local/appc              2.0.0      Application Controller
-  local/clamp             2.0.0      ONAP Clamp
-  local/common            2.0.0      Common templates for inclusion in other charts
-  local/onap              2.0.0      Open Network Automation Platform (ONAP)
-  local/robot             2.0.0      A helm Chart for kubernetes-ONAP Robot
-  local/so                2.0.0      ONAP Service Orchestrator
+  > helm search onap -l
+
+.. literalinclude:: helm-search.txt
 
 .. note::
   The setup of the Helm repository is a one time activity. If you make changes to your deployment charts or values be sure to use `make` to update your local Helm repository.
 
-**Step 7.** Once the repo is setup, installation of ONAP can be done with a
-single command::
-
-  > helm install local/onap -n dev --namespace onap
+**Step 8.** Once the repo is setup, installation of ONAP can be done with a
+single command
 
 .. note::
-  The requirement for the use of the `onap` namespace will be lifted once the OOM team completes their Beijing deveivers.
+  The --timeout 900 is currently required in Dublin to address long running initialization tasks
+  for DMaaP and SO. Without this timeout value both applications may fail to deploy.
 
-Use the following to monitor your deployment and determine when ONAP is ready for use::
+ a. To deploy all ONAP applications use this command::
 
-  > kubectl get pods --all-namespaces -o=wide
+    > cd oom/kubernetes
+    > helm deploy dev local/onap --namespace onap -f onap/resources/overrides/onap-all.yaml -f onap/resources/overrides/openstack.yaml --timeout 900
+
+ b. If you are using a custom override (e.g. integration-override.yaml) use this command::
+
+    > helm deploy dev local/onap -f /root/integration-override.yaml --namespace onap --timeout 900
+
+
+ c. If you have a slower cloud environment you may want to use the public-cloud.yaml
+    which has longer delay intervals on database updates.::
+
+    > helm deploy dev local/onap -f /root/oom/kubernetes/onap/resources/environments/public-cloud.yaml -f /root/integration-override.yaml --namespace onap --timeout 900
+
+
+**Step 9.** Commands to interact with the OOM installation
+
+Use the following to monitor your deployment and determine when ONAP is
+ready for use::
+
+  > kubectl get pods -n onap -o=wide
+
+Undeploying onap can be done using the following command::
+
+  > helm undeploy dev --purge
+
+
+More examples of using the deploy and undeploy plugins can be found here: https://wiki.onap.org/display/DW/OOM+Helm+%28un%29Deploy+plugins

@@ -9,7 +9,7 @@
 
     "default_attributes": {
         "disableHttp": false,
-        "CS_VIP": "sdc-cs.{{include "common.namespace" .}}",
+        "CS_VIP": "{{.Values.global.cassandra.serviceName}}.{{include "common.namespace" .}}",
         "BE_VIP": "sdc-be.{{include "common.namespace" .}}",
         "ONBOARDING_BE_VIP": "sdc-onboarding-be.{{include "common.namespace" .}}",
         "DCAE_BE_VIP": "sdc-dcae-be.{{include "common.namespace" .}}",
@@ -42,7 +42,7 @@
         },
         "Nodes": {
             "CS": [
-                "sdc-cs.{{include "common.namespace" .}}"
+                "{{.Values.global.cassandra.serviceName}}.{{include "common.namespace" .}}"
             ],
             "BE": "sdc-be.{{include "common.namespace" .}}",
             "ONBOARDING_BE": "sdc-onboarding-be.{{include "common.namespace" .}}",
@@ -51,20 +51,6 @@
                 "sdc-es.{{include "common.namespace" .}}"
             ],
             "KB": "sdc-kb.{{include "common.namespace" .}}"
-        },
-        "Plugins": {
-            "DCAE": {
-                "dcae_discovery_url": "http://sdc-dcae-fe.{{include "common.namespace" .}}:8183/dcaed/#/home",
-                "dcae_source_url": "http://sdc.dcae.plugin.simpledemo.onap.org:30263/dcaed/#/home"
-            },
-            "DCAE-TAB": {
-                "dcae_dt_discovery_url": "http://sdc-dcae-dt.{{include "common.namespace" .}}:8186/dcae/#/dcae/home",
-                "dcae_dt_source_url": "http://sdc.dcae.plugin.simpledemo.onap.org:30265/dcae/#/dcae/home"
-            },
-            "WORKFLOW": {
-                "workflow_discovery_url": "http://sdc-wfd-fe.{{include "common.namespace" .}}:8080",
-                "workflow_source_url": "http://sdc.workflow.plugin.simpledemo.onap.org:30256"
-            }
         },
         "VnfRepo": {
             "vnfRepoPort": "{{.Values.config.environment.vnfRepoPort}}",
@@ -82,7 +68,8 @@
         },
         "ONBOARDING_BE": {
             "http_port": "8081",
-            "https_port": "8445"
+            "https_port": "8445",
+            "catalog_notification_url": "%s://%s:%s/sdc2/rest/v1/catalog/notif/vsp/"
         },
         "elasticsearch": {
             "cluster_name": "SDC-ES-",
@@ -93,6 +80,7 @@
         },
 
         "cassandra": {
+            "cassandra_port": 9042,
             "concurrent_reads": "32",
             "num_tokens": "256",
             "data_dir": "/var/lib/cassandra/data",
@@ -100,8 +88,8 @@
             "cassandra_user": "asdc_user",
             "cassandra_password": "Aa1234%^!",
             "concurrent_writes": "32",
-            "cluster_name": "SDC-CS-",
-            "datacenter_name": "SDC-CS-",
+            "cluster_name": "{{.Values.global.cassandra.clusterName}}",
+            "datacenter_name": "{{.Values.global.cassandra.dataCenter}}",
             "multithreaded_compaction": "false",
             "cache_dir": "/var/lib/cassandra/saved_caches",
             "log_file": "/var/lib/cassandra/log/system.log",
@@ -109,7 +97,8 @@
             "commitlog_dir": "/var/lib/cassandra/commitlog",
             "socket_read_timeout": "20000",
             "socket_connect_timeout": "20000",
-            "titan_connection_timeout": "10000"
+            "titan_connection_timeout": "10000",
+            "replication_factor": "{{.Values.global.cassandra.replicaCount}}"
         }
     }
 }

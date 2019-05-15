@@ -74,7 +74,7 @@ spec:
             - -c
             - nodetool status | grep $POD_IP | awk '$1!="UN" { exit 1; }'
           initialDelaySeconds: {{ .Values.readiness.initialDelaySeconds }}
-          timeoutSeconds: {{ .Values.liveness.periodSeconds }}
+          periodSeconds: {{ .Values.readiness.periodSeconds }}
         lifecycle:
           preStop:
             exec:
@@ -134,5 +134,8 @@ spec:
             storage: {{ .Values.persistence.size | quote }}
         selector:
           matchLabels:
+            app: {{ include "common.name" . }}
             release: "{{ .Release.Name }}"
   {{- end }}
+      imagePullSecrets:
+      - name: "{{ include "common.namespace" . }}-docker-registry-key"

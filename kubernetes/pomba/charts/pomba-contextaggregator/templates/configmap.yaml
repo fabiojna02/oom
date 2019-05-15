@@ -31,7 +31,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "common.fullname" . }}-pre-start-configmap
+  name: {{ include "common.fullname" . }}-log
   namespace: {{ include "common.namespace" . }}
 data:
-{{ tpl (.Files.Glob "resources/bin/*").AsConfig . | indent 2 }}
+{{ tpl (.Files.Glob "resources/config/logback.xml").AsConfig . | indent 2 }}

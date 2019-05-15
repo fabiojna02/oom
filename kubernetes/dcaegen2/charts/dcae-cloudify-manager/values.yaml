@@ -1,6 +1,6 @@
 #============LICENSE_START========================================================
 # ================================================================================
-# Copyright (c) 2018 AT&T Intellectual Property. All rights reserved.
+# Copyright (c) 2018-2019 AT&T Intellectual Property. All rights reserved.
 # Modifications Copyright © 2018 Amdocs, Bell Canada
 # ================================================================================
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,7 @@
 #################################################################
 global:
   nodePortPrefix: 302
+  persistence: {}
   readinessRepository: oomk8s
   readinessImage: readiness-check:2.0.0
   loggingRepository: docker.elastic.co
@@ -43,8 +44,14 @@ config:
 #################################################################
 # application image
 repository: nexus3.onap.org:10001
-image: onap/org.onap.dcaegen2.deployments.cm-container:1.4.2
+image: onap/org.onap.dcaegen2.deployments.cm-container:1.6.2
 pullPolicy: Always
+
+# name of shared ConfigMap with kubeconfig for multiple clusters
+multisiteConfigMapName: multisite-kubeconfig-configmap
+
+# image for init container to initialize shared ConfigMap
+multisiteInitImage: onap/org.onap.dcaegen2.deployments.multisite-init-container:1.0.0
 
 # probe configuration parameters
 liveness:
@@ -56,7 +63,7 @@ liveness:
   enabled: false
 
 readiness:
-  initialDelaySeconds: 10
+  initialDelaySeconds: 60
   periodSeconds: 10
 
 service:
@@ -87,3 +94,11 @@ resources:
 # Kubernetes namespace for components deployed via Cloudify manager
 # If empty, use the common namespace
 # dcae_ns: "dcae"
+
+# Parameters for persistent storage
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 4Gi
+  mountPath: /dockerdata-nfs
+  mountSubPath: dcae-cm/data

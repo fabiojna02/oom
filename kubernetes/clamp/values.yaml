@@ -26,9 +26,11 @@ global: # global defaults
 subChartsOnly:
   enabled: true
 
+flavor: small
+
 # application image
 repository: nexus3.onap.org:10001
-image: onap/clamp:3.0.2
+image: onap/clamp:4.0.1
 pullPolicy: Always
 
 # flag to enable debugging - application support required
@@ -53,7 +55,16 @@ config:
         "clamp.config.sdc.servicePassword": "b7acccda32b98c5bb7acccda32b98c5b05D511BD6D93626E90D18E9D24D9B78CD34C7EE8012F0A189A28763E82271E50A5D4EC10C7D93E06E0A2D27CAE66B981",
         "clamp.config.files.sdcController": "file:/opt/clamp/sdc-controllers-config.json",
         "clamp.config.dcae.inventory.url": "http://inventory.{{ include "common.namespace" . }}:8080",
-        "clamp.config.dcae.dispatcher.url": "https://deployment-handler.{{ include "common.namespace" . }}:8443",
+        "clamp.config.dcae.dispatcher.url": "https4://deployment-handler.{{ include "common.namespace" . }}:8443",
+        "clamp.config.dcae.deployment.url": "https4://deployment-handler.{{ include "common.namespace" . }}:8443",
+        "clamp.config.dcae.deployment.userName": "none",
+        "clamp.config.dcae.deployment.password": "none",
+        "clamp.config.policy.api.url": "http4://policy-api.{{ include "common.namespace" . }}:6969",
+        "clamp.config.policy.api.userName": "healthcheck",
+        "clamp.config.policy.api.password": "zb!XztG34",
+        "clamp.config.policy.pap.url": "http4://policy-pap.{{ include "common.namespace" . }}:6969",
+        "clamp.config.policy.pap.userName": "healthcheck",
+        "clamp.config.policy.pap.password": "zb!XztG34",
         "clamp.config.policy.pdpUrl1": "https://pdp.{{ include "common.namespace" . }}:8081/pdp/ , testpdp, alpha123",
         "clamp.config.policy.pdpUrl2": "https://pdp.{{ include "common.namespace" . }}:8081/pdp/ , testpdp, alpha123",
         "clamp.config.policy.papUrl": "https://pap.{{ include "common.namespace" . }}:9091/pap/ , testpap, alpha123",
@@ -92,15 +103,11 @@ service:
   type: NodePort
   name: clamp
   portName: clamp
-  internalPort: 8080
-  externalPort: 8080
-  nodePort: 95
-  portName2: clamp-ssl
-  internalPort2: 8443
-  externalPort2: 8443
+  internalPort: 8443
+  externalPort: 8443
+  nodePort: 58
   # as of 20180904 port 58 is reserved for clamp from log/logdemonode
   # see https://wiki.onap.org/display/DW/OOM+NodePort+List
-  nodePort2: 58
 
 
 ingress:
@@ -118,9 +125,18 @@ ingress:
   # Minimum memory for development is 2 CPU cores and 4GB memory
   # Minimum memory for production is 4 CPU cores and 8GB memory
 resources:
-  limits:
-    cpu: 1
-    memory: 1.2Gi
-  requests:
-    cpu: 10m
-    memory: 800Mi
+  small:
+    limits:
+      cpu: 1
+      memory: 1.2Gi
+    requests:
+      cpu: 10m
+      memory: 800Mi
+  large:
+    limits:
+      cpu: 1
+      memory: 1.2Gi
+    requests:
+      cpu: 10m
+      memory: 800Mi
+  unlimited: {}

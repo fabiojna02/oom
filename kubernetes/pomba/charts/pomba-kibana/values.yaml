@@ -34,7 +34,7 @@ busyboxImage: library/busybox:latest
 
 # application image
 loggingRepository: docker.elastic.co
-image: kibana/kibana:6.3.1
+image: kibana/kibana:6.6.2
 pullPolicy: Always
 
 # flag to enable debugging - application support required
@@ -44,6 +44,11 @@ debugEnabled: false
 config:
   elasticsearchServiceName: pomba-es
   elasticsearchPort: 9200
+
+  #Enable HTTPS
+  serverSslEnabled: true
+  serverSslCertificate: /usr/share/kibana/auth/pomba.crt.pem
+  serverSslKey: /usr/share/kibana/auth/pomba.key.pem
 
 # default number of instances
 replicaCount: 1
@@ -85,15 +90,15 @@ resources:
   small:
     limits:
       cpu: 2
-      memory: 1200Mi
+      memory: 1600Mi
     requests:
       cpu: 1
-      memory: 600Mi
+      memory: 800Mi
   large:
     limits:
       cpu: 4
-      memory: 2400Mi
+      memory: 3200Mi
     requests:
       cpu: 2
-      memory: 1200Mi
+      memory: 1600Mi
   unlimited: {}

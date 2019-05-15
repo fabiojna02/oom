@@ -1,0 +1,115 @@
+# Copyright © 2017 Amdocs, Bell Canada
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#################################################################
+# Global configuration defaults.
+#################################################################
+global:
+  nodePortPrefixExt: 304
+  readinessRepository: oomk8s
+  readinessImage: readiness-check:2.0.0
+  loggingRepository: docker.elastic.co
+  loggingImage: beats/filebeat:5.5.0
+  loggingDirectory: /opt/app/datartr/logs
+  busyBoxImage: busybox:1.30
+  busyBoxRepository: docker.io
+
+#################################################################
+# Application configuration defaults.
+#################################################################
+# application image
+repository: nexus3.onap.org:10001
+image: onap/dmaap/datarouter-node:2.1.0
+pullPolicy: Always
+
+# flag to enable debugging - application support required
+debugEnabled: false
+
+# application configuration - see parent values chart
+
+# default number of instances
+replicaCount: 1
+
+nodeSelector: {}
+
+affinity: {}
+
+# probe configuration parameters
+liveness:
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  # necessary to disable liveness probe when setting breakpoints
+  # in debugger so K8s doesn't restart unresponsive container
+  enabled: true
+
+readiness:
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+## Persist data to a persitent volume
+persistence:
+  volumeReclaimPolicy: Retain
+  accessMode: ReadWriteMany
+  mountPath: /dockerdata-nfs
+
+  spoolMountSubPath: data-router/dr-node/spool-data
+  spoolSize: 1Gi
+  spoolPath: /opt/app/datartr/spool
+
+  eventLogsMountSubPath: data-router/dr-node/event-logs
+  eventLogSize: 1Gi
+  eventLogsPath: /opt/app/datartr/logs
+
+ingress:
+  enabled: false
+
+# Resource Limit flavor -By Default using small
+flavor: small
+# Segregation for Different environment (Small and Large)
+resources:
+  small:
+    limits:
+      cpu: 2000m
+      memory: 4Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+  large:
+    limits:
+      cpu: 4000m
+      memory: 8Gi
+    requests:
+      cpu: 1000m
+      memory: 2Gi
+  unlimited: {}
+
+config:
+  # dr node server configuration
+  dmaapDrNode:
+    servicetype: NodePort
+    name: dmaap-dr-node
+    externalPort: 8080
+    externalPort2: 8443
+    internalPort: 8080
+    internalPort2: 8443
+    portName: dr-node-port
+    portName2: dr-node-port2
+    nodePort: 93
+    nodePort2: 94
+
+# dr provisioning server configuration
+  dmaapDrProv:
+    name: dmaap-dr-prov
+    externalPort2: 8443
+    internalPort2: 8443

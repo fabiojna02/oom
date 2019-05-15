@@ -1,5 +1,5 @@
 # Copyright © 2017 Amdocs, Bell Canada
-# Modifications Copyright © 2018 AT&T
+# Modifications Copyright © 2018-2019 AT&T
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,8 +23,9 @@ global: # global defaults
 
 # application image
 repository: nexus3.onap.org:10001
-image: mariadb:10.1.11
+image: mariadb:10.3.12
 pullPolicy: Always
+flavor: small
 
 #################################################################
 # Application configuration defaults.
@@ -98,9 +99,18 @@ ingress:
   # Minimum memory for development is 2 CPU cores and 4GB memory
   # Minimum memory for production is 4 CPU cores and 8GB memory
 resources:
-  limits:
-    cpu: 1
-    memory: 500Mi
-  requests:
-    cpu: 10m
-    memory: 200Mi
+  small:
+    limits:
+      cpu: 1
+      memory: 500Mi
+    requests:
+      cpu: 10m
+      memory: 200Mi
+  large:
+    limits:
+      cpu: 1
+      memory: 500Mi
+    requests:
+      cpu: 10m
+      memory: 200Mi
+  unlimited: {}
